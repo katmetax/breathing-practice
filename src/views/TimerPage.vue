@@ -1,113 +1,7 @@
 <template>
   <section class="timer-page">
     <div class="timer-layout">
-      <div class="panel panel--left">
-        <h2 class="panel-title">Configure Session</h2>
-
-        <form class="form" @submit.prevent="handleSavePreset">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
-            <div class="grid-2">
-              <label class="field">
-                <span class="field-label">Inhale</span>
-                <input
-                  v-model.number="inhale"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="60"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Hold (after inhale)</span>
-                <input
-                  v-model.number="holdIn"
-                  class="field-input"
-                  type="number"
-                  min="0"
-                  max="60"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Exhale</span>
-                <input
-                  v-model.number="exhale"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="60"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Hold (after exhale)</span>
-                <input
-                  v-model.number="holdOut"
-                  class="field-input"
-                  type="number"
-                  min="0"
-                  max="60"
-                  required
-                />
-              </label>
-            </div>
-            <label class="field">
-              <span class="field-label">Preset name</span>
-              <input
-                v-model="presetName"
-                class="field-input"
-                type="text"
-                maxlength="40"
-                placeholder="e.g. Box Breath"
-                required
-              />
-            </label>
-
-            <button class="btn btn-secondary" type="submit">
-              Save Preset
-            </button>
-            <p v-if="saveError" class="field-error">
-              {{ saveError }}
-            </p>
-            <p v-if="saveSuccess" class="field-success">
-              {{ saveSuccess }}
-            </p>
-          </fieldset>
-        </form>
-
-        <section class="presets-section">
-          <h3 class="section-title">Preset Library</h3>
-          <p v-if="presets.length === 0" class="muted">
-            No presets yet. Create one above to get started.
-          </p>
-          <ul v-else class="preset-list">
-            <li
-              v-for="preset in presets"
-              :key="preset.id"
-              class="preset-item"
-            >
-              <button
-                class="preset-button"
-                type="button"
-                :class="{
-                  'preset-button--active': preset.id === selectedPresetId,
-                }"
-                @click="selectedPresetId = preset.id"
-              >
-                <span class="preset-name">{{ preset.name }}</span>
-                <span class="preset-meta">
-                  {{ preset.inhaleSec }} / {{ preset.holdInSec }} /
-                  {{ preset.exhaleSec }} / {{ preset.holdOutSec }} sec
-                </span>
-              </button>
-            </li>
-          </ul>
-        </section>
-      </div>
-
-      <div class="panel panel--right">
+      <div class="panel">
         <h2 class="panel-title">Practice</h2>
 
         <form class="form form--session" @submit.prevent="handleStart">
@@ -157,20 +51,14 @@
             </div>
           </fieldset>
 
-          <button class="btn btn-primary" type="submit" :disabled="!canStart">
-            Start
-          </button>
+          <button class="btn btn-primary" type="submit" :disabled="!canStart">Start</button>
           <p v-if="startError" class="field-error">
             {{ startError }}
           </p>
         </form>
 
         <section class="session-visual">
-          <div
-            class="breath-circle"
-            :class="['breath-circle--' + currentPhase]"
-            aria-live="polite"
-          >
+          <div class="breath-circle" :class="['breath-circle--' + currentPhase]" aria-live="polite">
             <p class="breath-phase-label">
               {{ phaseLabel }}
             </p>
@@ -192,12 +80,7 @@
             </span>
           </p>
 
-          <button
-            v-if="isRunning"
-            class="btn btn-ghost"
-            type="button"
-            @click="handleStop"
-          >
+          <button v-if="isRunning" class="btn btn-ghost" type="button" @click="handleStop">
             Stop session
           </button>
         </section>
@@ -207,151 +90,110 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
-import { presetManager } from '../services/presetManager';
-import { timerEngine } from '../services/timerEngine';
-import { audioController } from '../services/audioController';
-import { historyService } from '../services/historyService';
-import type { BreathPreset, SessionMode } from '../types/breathing';
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { presetManager } from '../services/presetManager'
+import { timerEngine } from '../services/timerEngine'
+import { audioController } from '../services/audioController'
+import { historyService } from '../services/historyService'
+import type { BreathPreset, SessionMode } from '../types/breathing'
 
-const inhale = ref(4);
-const holdIn = ref(4);
-const exhale = ref(4);
-const holdOut = ref(4);
-const presetName = ref('Box Breath');
+const saveSuccess = ref('')
 
-const saveError = ref('');
-const saveSuccess = ref('');
+const mode = ref<SessionMode>('rounds')
+const rounds = ref(10)
+const durationMinutes = ref(5)
 
-const mode = ref<SessionMode>('rounds');
-const rounds = ref(10);
-const durationMinutes = ref(5);
+const startError = ref('')
 
-const startError = ref('');
+const presets = ref<BreathPreset[]>(presetManager.list())
+const selectedPresetId = ref<string | null>(presets.value[0]?.id ?? null)
 
-const presets = ref<BreathPreset[]>(presetManager.list());
-const selectedPresetId = ref<string | null>(
-  presets.value[0]?.id ?? null,
-);
-
-const isRunning = ref(false);
-const sessionComplete = ref(false);
-const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out'>(
-  'inhale',
-);
-const currentRound = ref(1);
-const elapsedTotal = ref(0);
-const elapsedPhase = ref(0);
-const lastDurationSec = ref<number | null>(null);
+const isRunning = ref(false)
+const sessionComplete = ref(false)
+const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out'>('inhale')
+const currentRound = ref(1)
+const elapsedTotal = ref(0)
+const elapsedPhase = ref(0)
+const lastDurationSec = ref<number | null>(null)
 
 const canStart = computed(() => {
-  if (!selectedPresetId.value) return false;
-  if (mode.value === 'rounds') return rounds.value > 0;
-  return durationMinutes.value > 0;
-});
+  if (!selectedPresetId.value) return false
+  if (mode.value === 'rounds') return rounds.value > 0
+  return durationMinutes.value > 0
+})
 
 const phaseLabel = computed(() => {
   switch (currentPhase.value) {
     case 'inhale':
-      return 'Inhale';
+      return 'Inhale'
     case 'hold_in':
-      return 'Hold';
+      return 'Hold'
     case 'exhale':
-      return 'Exhale';
+      return 'Exhale'
     case 'hold_out':
-      return 'Hold (empty)';
+      return 'Hold (empty)'
     default:
-      return '';
+      return ''
   }
-});
+})
 
 const formattedElapsed = computed(() => {
-  const total = Math.floor(elapsedTotal.value);
+  const total = Math.floor(elapsedTotal.value)
   const minutes = Math.floor(total / 60)
     .toString()
-    .padStart(2, '0');
-  const seconds = (total % 60).toString().padStart(2, '0');
-  return `${minutes}:${seconds}`;
-});
+    .padStart(2, '0')
+  const seconds = (total % 60).toString().padStart(2, '0')
+  return `${minutes}:${seconds}`
+})
 
 const lastDurationDisplay = computed(() => {
-  if (lastDurationSec.value == null) return '';
-  const minutes = Math.floor(lastDurationSec.value / 60);
-  const seconds = lastDurationSec.value % 60;
+  if (lastDurationSec.value == null) return ''
+  const minutes = Math.floor(lastDurationSec.value / 60)
+  const seconds = lastDurationSec.value % 60
   if (minutes === 0) {
-    return `${seconds} seconds`;
+    return `${seconds} seconds`
   }
-  return `${minutes} min ${seconds.toString().padStart(2, '0')} sec`;
-});
+  return `${minutes} min ${seconds.toString().padStart(2, '0')} sec`
+})
 
 watch(
   () => presetManager.list(),
   (next) => {
-    presets.value = next;
+    presets.value = next
   },
-);
+)
 
 function reloadPresets() {
-  presets.value = presetManager.list();
+  presets.value = presetManager.list()
   if (!selectedPresetId.value && presets.value.length > 0) {
-    const firstPreset = presets.value[0];
+    const firstPreset = presets.value[0]
     if (firstPreset) {
-      selectedPresetId.value = firstPreset.id;
+      selectedPresetId.value = firstPreset.id
     }
   }
 }
 
-reloadPresets();
-
-function handleSavePreset() {
-  saveError.value = '';
-  saveSuccess.value = '';
-
-  if (!presetName.value.trim()) {
-    saveError.value = 'Please provide a name for the preset.';
-    return;
-  }
-
-  const values = [inhale.value, exhale.value];
-  if (values.some((v) => !Number.isFinite(v) || v <= 0)) {
-    saveError.value = 'Inhale and exhale must be positive seconds.';
-    return;
-  }
-
-  const created = presetManager.create({
-    name: presetName.value.trim(),
-    inhaleSec: Math.round(inhale.value),
-    holdInSec: Math.round(holdIn.value),
-    exhaleSec: Math.round(exhale.value),
-    holdOutSec: Math.round(holdOut.value),
-    isDefault: false,
-  });
-
-  reloadPresets();
-  selectedPresetId.value = created.id;
-  saveSuccess.value = `"${created.name}" saved to your presets.`;
-}
+reloadPresets()
 
 function handleStart() {
-  startError.value = '';
-  saveSuccess.value = '';
+  startError.value = ''
+  saveSuccess.value = ''
 
   const preset =
-    selectedPresetId.value &&
-    presets.value.find((p) => p.id === selectedPresetId.value);
+    selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)
   if (!preset) {
-    startError.value = 'Please choose a preset before starting.';
-    return;
+    startError.value = 'Please choose a preset before starting.'
+    return
   }
 
   if (mode.value === 'rounds') {
     if (!rounds.value || rounds.value <= 0) {
-      startError.value = 'Please choose at least one round.';
-      return;
+      startError.value = 'Please choose at least one round.'
+      return
     }
   } else if (!durationMinutes.value || durationMinutes.value <= 0) {
-    startError.value = 'Please choose a positive duration.';
-    return;
+    startError.value = 'Please choose a positive duration.'
+    return
   }
 
   const phases = [
@@ -359,30 +201,27 @@ function handleStart() {
     { phase: 'hold_in' as const, durationSec: preset.holdInSec },
     { phase: 'exhale' as const, durationSec: preset.exhaleSec },
     { phase: 'hold_out' as const, durationSec: preset.holdOutSec },
-  ].filter((p) => p.durationSec > 0);
+  ].filter((p) => p.durationSec > 0)
 
   if (phases.length === 0) {
-    startError.value =
-      'Preset has no non-zero phases. Please adjust the pattern.';
-    return;
+    startError.value = 'Preset has no non-zero phases. Please adjust the pattern.'
+    return
   }
-  const firstPhase = phases[0];
+  const firstPhase = phases[0]
   if (!firstPhase) {
-    startError.value = 'Unable to start: missing first phase.';
-    return;
+    startError.value = 'Unable to start: missing first phase.'
+    return
   }
 
   const totalDurationSec =
-    mode.value === 'duration'
-      ? Math.round(durationMinutes.value * 60)
-      : undefined;
+    mode.value === 'duration' ? Math.round(durationMinutes.value * 60) : undefined
 
-  sessionComplete.value = false;
-  lastDurationSec.value = null;
-  currentPhase.value = firstPhase.phase;
-  currentRound.value = 1;
-  elapsedTotal.value = 0;
-  elapsedPhase.value = 0;
+  sessionComplete.value = false
+  lastDurationSec.value = null
+  currentPhase.value = firstPhase.phase
+  currentRound.value = 1
+  elapsedTotal.value = 0
+  elapsedPhase.value = 0
 
   timerEngine.init(
     {
@@ -393,43 +232,43 @@ function handleStart() {
     },
     {
       onPhaseChange(state) {
-        currentPhase.value = state.currentPhase ?? 'inhale';
-        currentRound.value = state.currentRound;
-        elapsedPhase.value = state.currentPhaseElapsed;
-        elapsedTotal.value = state.totalElapsed;
-        audioController.playPhaseTone();
+        currentPhase.value = state.currentPhase ?? 'inhale'
+        currentRound.value = state.currentRound
+        elapsedPhase.value = state.currentPhaseElapsed
+        elapsedTotal.value = state.totalElapsed
+        audioController.playPhaseTone()
       },
       onTick(state) {
-        elapsedPhase.value = state.currentPhaseElapsed;
-        elapsedTotal.value = state.totalElapsed;
+        elapsedPhase.value = state.currentPhaseElapsed
+        elapsedTotal.value = state.totalElapsed
       },
       onComplete(state) {
-        isRunning.value = false;
-        sessionComplete.value = true;
-        lastDurationSec.value = Math.round(state.totalElapsed);
-        audioController.playCompletionTone();
+        isRunning.value = false
+        sessionComplete.value = true
+        lastDurationSec.value = Math.round(state.totalElapsed)
+        audioController.playCompletionTone()
 
         historyService.add({
           presetId: preset.id,
           durationSeconds: Math.round(state.totalElapsed),
-        });
+        })
       },
     },
-  );
+  )
 
-  timerEngine.start();
-  isRunning.value = true;
-  audioController.playPhaseTone();
+  timerEngine.start()
+  isRunning.value = true
+  audioController.playPhaseTone()
 }
 
 function handleStop() {
-  timerEngine.stop();
-  isRunning.value = false;
+  timerEngine.stop()
+  isRunning.value = false
 }
 
 onBeforeUnmount(() => {
-  timerEngine.stop();
-});
+  timerEngine.stop()
+})
 </script>
 
 <style scoped>
@@ -764,4 +603,3 @@ onBeforeUnmount(() => {
   color: #e5e7eb;
 }
 </style>
-

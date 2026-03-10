@@ -3,10 +3,20 @@
     <header class="app-header">
       <h1 class="app-title">Breathing Practice</h1>
       <nav class="app-nav">
-        <RouterLink to="/" class="nav-link" active-class="nav-link--active"> Timer </RouterLink>
-        <RouterLink to="/history" class="nav-link" active-class="nav-link--active">
+        <a
+          class="nav-link"
+          :class="{ 'nav-link--active': route.path === '/settings' }"
+          @click.prevent="onSettingsClick"
+        >
+          <SettingsIcon />
+        </a>
+        <a
+          class="nav-link"
+          :class="{ 'nav-link--active': route.path === '/history' }"
+          @click.prevent="onHistoryClick"
+        >
           <HistoryIcon />
-        </RouterLink>
+        </a>
       </nav>
     </header>
 
@@ -18,6 +28,19 @@
 
 <script setup lang="ts">
 import HistoryIcon from '~icons/material-symbols/history-rounded'
+import SettingsIcon from '~icons/material-symbols/settings-outline-rounded'
+import { useRoute, useRouter } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
+const onHistoryClick = () => {
+  router.push(route.path === '/history' ? '/' : '/history')
+}
+
+const onSettingsClick = () => {
+  router.push(route.path === '/settings' ? '/' : '/settings')
+}
 </script>
 
 <style scoped>
