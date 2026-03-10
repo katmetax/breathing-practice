@@ -102,9 +102,11 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
 import type { BreathPreset } from '../types/breathing'
+import { useSessionConfigStore } from '../stores/sessionConfig'
 
 const inhale = ref(4)
 const holdIn = ref(4)
@@ -116,7 +118,8 @@ const saveError = ref('')
 const saveSuccess = ref('')
 
 const presets = ref<BreathPreset[]>(presetManager.list())
-const selectedPresetId = ref<string | null>(presets.value[0]?.id ?? null)
+const sessionConfigStore = useSessionConfigStore()
+const { selectedPresetId } = storeToRefs(sessionConfigStore)
 
 watch(
   () => presetManager.list(),
@@ -130,7 +133,7 @@ function reloadPresets() {
   if (!selectedPresetId.value && presets.value.length > 0) {
     const firstPreset = presets.value[0]
     if (firstPreset) {
-      selectedPresetId.value = firstPreset.id
+      sessionConfigStore.setSelectedPresetId(firstPreset.id)
     }
   }
 }
@@ -162,7 +165,7 @@ function handleSavePreset() {
   })
 
   reloadPresets()
-  selectedPresetId.value = created.id
+  sessionConfigStore.setSelectedPresetId(created.id)
   saveSuccess.value = `"${created.name}" saved to your presets.`
 }
 
