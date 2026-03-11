@@ -66,6 +66,24 @@ class PresetManager {
     this.persist();
     return record;
   }
+
+  update(preset: BreathPreset): BreathPreset {
+    this.ensureLoaded();
+    const index = this.presets.findIndex((p) => p.id === preset.id);
+    if (index === -1) {
+      this.presets.push(preset);
+    } else {
+      this.presets[index] = preset;
+    }
+    this.persist();
+    return preset;
+  }
+
+  delete(id: string): void {
+    this.ensureLoaded();
+    this.presets = this.presets.filter((p) => p.id !== id);
+    this.persist();
+  }
 }
 
 export const presetManager = new PresetManager();

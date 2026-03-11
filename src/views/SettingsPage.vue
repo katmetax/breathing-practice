@@ -14,6 +14,7 @@
               type="number"
               min="1"
               max="60"
+              step="0.1"
               required
             />
           </label>
@@ -25,6 +26,7 @@
               type="number"
               min="0"
               max="60"
+              step="0.1"
               required
             />
           </label>
@@ -36,6 +38,7 @@
               type="number"
               min="1"
               max="60"
+              step="0.1"
               required
             />
           </label>
@@ -47,6 +50,7 @@
               type="number"
               min="0"
               max="60"
+              step="0.1"
               required
             />
           </label>
@@ -63,7 +67,11 @@
           />
         </label>
 
-        <button class="btn btn-secondary" type="submit">Save Preset</button>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">
+            {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
+          </button>
+        </div>
         <p v-if="saveError" class="field-error">
           {{ saveError }}
         </p>
@@ -74,26 +82,63 @@
     </form>
 
     <section class="presets-section">
-      <h3 class="section-title">Preset Library</h3>
-      <p v-if="presets.length === 0" class="muted">
-        No presets yet. Create one above to get started.
-      </p>
+      <div class="presets-header">
+        <h3 class="section-title">Preset Library</h3>
+        <button
+          class="btn btn-secondary btn-secondary--compact"
+          type="button"
+          @click="handleNewPreset"
+        >
+          New Preset
+        </button>
+      </div>
+      <p v-if="presets.length === 0" class="muted">No presets yet. Create one to get started.</p>
       <ul v-else class="preset-list">
         <li v-for="preset in presets" :key="preset.id" class="preset-item">
-          <button
-            class="preset-button"
-            type="button"
-            :class="{
-              'preset-button--active': preset.id === selectedPresetId,
-            }"
-            @click="selectedPresetId = preset.id"
-          >
-            <span class="preset-name">{{ preset.name }}</span>
-            <span class="preset-meta">
-              {{ preset.inhaleSec }} / {{ preset.holdInSec }} / {{ preset.exhaleSec }} /
-              {{ preset.holdOutSec }} sec
-            </span>
-          </button>
+          <div class="preset-row">
+            <button
+              class="preset-button"
+              type="button"
+              :class="{
+                'preset-button--active': preset.id === selectedPresetId,
+              }"
+              @click="handleSelectPreset(preset.id)"
+            >
+              <span class="preset-name">{{ preset.name }}</span>
+              <span class="preset-meta">
+                {{ formatSeconds(preset.inhaleSec) }} / {{ formatSeconds(preset.holdInSec) }} /
+                {{ formatSeconds(preset.exhaleSec) }} / {{ formatSeconds(preset.holdOutSec) }} sec
+              </span>
+            </button>
+
+            <div class="preset-delete-container">
+              <button
+                v-if="pendingDeleteId !== preset.id"
+                class="preset-delete-button"
+                type="button"
+                :disabled="preset.isDefault"
+                @click="pendingDeleteId = preset.id"
+              >
+                <DeleteIcon />
+              </button>
+              <div v-else class="preset-delete-confirm">
+                <button
+                  class="preset-delete-confirm-btn"
+                  type="button"
+                  @click="handleDeletePreset(preset.id)"
+                >
+                  Confirm
+                </button>
+                <button
+                  class="preset-delete-cancel-btn"
+                  type="button"
+                  @click="pendingDeleteId = null"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </li>
       </ul>
     </section>
@@ -107,6 +152,7 @@ import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
 import type { BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
+import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 
 const inhale = ref(4)
 const holdIn = ref(4)
@@ -117,9 +163,36 @@ const presetName = ref('Box Breath')
 const saveError = ref('')
 const saveSuccess = ref('')
 
+const pendingDeleteId = ref<string | null>(null)
+
 const presets = ref<BreathPreset[]>(presetManager.list())
 const sessionConfigStore = useSessionConfigStore()
 const { selectedPresetId } = storeToRefs(sessionConfigStore)
+
+function formatSeconds(value: number): string {
+  if (Number.isNaN(value)) return '0'
+  if (Number.isInteger(value)) return value.toString()
+  return value.toFixed(1)
+}
+
+function resetFormToDefaults() {
+  inhale.value = 4
+  holdIn.value = 4
+  exhale.value = 4
+  holdOut.value = 4
+  presetName.value = ''
+}
+
+function loadPresetIntoForm(id: string | null) {
+  if (!id) return
+  const preset = presets.value.find((p) => p.id === id)
+  if (!preset) return
+  inhale.value = preset.inhaleSec
+  holdIn.value = preset.holdInSec
+  exhale.value = preset.exhaleSec
+  holdOut.value = preset.holdOutSec
+  presetName.value = preset.name
+}
 
 watch(
   () => presetManager.list(),
@@ -130,15 +203,58 @@ watch(
 
 function reloadPresets() {
   presets.value = presetManager.list()
-  if (!selectedPresetId.value && presets.value.length > 0) {
-    const firstPreset = presets.value[0]
-    if (firstPreset) {
-      sessionConfigStore.setSelectedPresetId(firstPreset.id)
+  // If a preset is currently selected and still exists in the list, keep form in sync.
+  if (selectedPresetId.value) {
+    const exists = presets.value.some((p) => p.id === selectedPresetId.value)
+    if (exists) {
+      loadPresetIntoForm(selectedPresetId.value)
     }
   }
 }
 
 reloadPresets()
+
+watch(selectedPresetId, (next) => {
+  if (next) {
+    loadPresetIntoForm(next)
+  }
+})
+
+function handleSelectPreset(id: string) {
+  sessionConfigStore.setSelectedPresetId(id)
+  pendingDeleteId.value = null
+  loadPresetIntoForm(id)
+}
+
+function handleDeletePreset(id: string) {
+  const preset = presets.value.find((p) => p.id === id)
+  if (!preset) return
+  if (preset.isDefault) return
+
+  presetManager.delete(id)
+  reloadPresets()
+  pendingDeleteId.value = null
+
+  if (selectedPresetId.value === id) {
+    const first = presets.value[0]
+    const nextId = first?.id ?? null
+    sessionConfigStore.setSelectedPresetId(nextId)
+    if (nextId) {
+      loadPresetIntoForm(nextId)
+    }
+  } else if (!presets.value.length) {
+    // No presets left; clear form for creating a new one.
+    resetFormToDefaults()
+  }
+}
+
+function handleNewPreset() {
+  sessionConfigStore.setSelectedPresetId(null)
+  pendingDeleteId.value = null
+  saveError.value = ''
+  saveSuccess.value = ''
+  resetFormToDefaults()
+}
 
 function handleSavePreset() {
   saveError.value = ''
@@ -155,18 +271,37 @@ function handleSavePreset() {
     return
   }
 
-  const created = presetManager.create({
-    name: presetName.value.trim(),
-    inhaleSec: Math.round(inhale.value),
-    holdInSec: Math.round(holdIn.value),
-    exhaleSec: Math.round(exhale.value),
-    holdOutSec: Math.round(holdOut.value),
-    isDefault: false,
-  })
+  const normalizeDuration = (value: number) => {
+    if (!Number.isFinite(value) || value < 0) return 0
+    return Math.round(value * 10) / 10
+  }
 
-  reloadPresets()
-  sessionConfigStore.setSelectedPresetId(created.id)
-  saveSuccess.value = `"${created.name}" saved to your presets.`
+  const targetId = selectedPresetId.value
+  const base =
+    targetId && presets.value.find((p) => p.id === targetId)
+      ? presets.value.find((p) => p.id === targetId)
+      : null
+
+  const payload: Omit<BreathPreset, 'id'> = {
+    name: presetName.value.trim(),
+    inhaleSec: normalizeDuration(inhale.value),
+    holdInSec: normalizeDuration(holdIn.value),
+    exhaleSec: normalizeDuration(exhale.value),
+    holdOutSec: normalizeDuration(holdOut.value),
+    isDefault: base?.isDefault ?? false,
+  }
+
+  if (base) {
+    const updated = presetManager.update({ ...base, ...payload })
+    reloadPresets()
+    sessionConfigStore.setSelectedPresetId(updated.id)
+    saveSuccess.value = `"${updated.name}" updated.`
+  } else {
+    const created = presetManager.create(payload)
+    reloadPresets()
+    sessionConfigStore.setSelectedPresetId(created.id)
+    saveSuccess.value = `"${created.name}" saved to your presets.`
+  }
 }
 
 onBeforeUnmount(() => {
@@ -232,6 +367,13 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #9ca3af;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .grid-2 {
@@ -305,6 +447,8 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, #22c55e, #06b6d4);
   color: #020617;
   box-shadow: 0 12px 30px rgba(34, 197, 94, 0.35);
+  width: 100%;
+  margin-top: 5%;
 }
 
 .btn-primary:hover {
@@ -343,12 +487,25 @@ onBeforeUnmount(() => {
   margin-top: 1.25rem;
 }
 
+.presets-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .section-title {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #9ca3af;
   margin-bottom: 0.5rem;
+}
+
+.btn-secondary--compact {
+  padding-inline: 0.8rem;
+  padding-block: 0.3rem;
+  font-size: 0.8rem;
 }
 
 .preset-list {
@@ -366,8 +523,19 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.preset-delete-container {
+  display: flex;
+  align-items: center;
+}
+
 .preset-button {
-  width: 100%;
+  flex: 1 1 auto;
   text-align: left;
   border-radius: 0.75rem;
   padding: 0.55rem 0.75rem;
@@ -392,6 +560,58 @@ onBeforeUnmount(() => {
 .preset-button--active {
   border-color: rgba(34, 197, 94, 0.9);
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
+}
+
+.preset-delete-button {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: #f75050;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.preset-delete-button:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 1);
+  border-radius: 0.75rem;
+  color: #fee2e2;
+}
+
+.preset-delete-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.preset-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.preset-delete-confirm-btn,
+.preset-delete-cancel-btn {
+  border-radius: 0.6rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.preset-delete-confirm-btn:hover,
+.preset-delete-cancel-btn:hover {
+  background: rgba(30, 64, 175, 0.4);
 }
 
 .preset-name {
