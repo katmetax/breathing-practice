@@ -82,6 +82,7 @@ const onSettingsClick = () => {
 }
 
 .nav-link {
+  cursor: pointer;
   padding: 0.4rem 0.9rem;
   border-radius: 999px;
   font-size: 0.9rem;

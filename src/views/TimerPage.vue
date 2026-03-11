@@ -11,18 +11,18 @@
               <button
                 class="mode-pill"
                 type="button"
-                :class="{ 'mode-pill--active': mode === 'rounds' }"
-                @click="mode = 'rounds'"
-              >
-                Rounds
-              </button>
-              <button
-                class="mode-pill"
-                type="button"
                 :class="{ 'mode-pill--active': mode === 'duration' }"
                 @click="mode = 'duration'"
               >
                 Total Duration
+              </button>
+              <button
+                class="mode-pill"
+                type="button"
+                :class="{ 'mode-pill--active': mode === 'rounds' }"
+                @click="mode = 'rounds'"
+              >
+                Rounds
               </button>
             </div>
 
@@ -58,13 +58,22 @@
         </form>
 
         <section class="session-visual">
-          <div class="breath-circle" :class="['breath-circle--' + currentPhase]" aria-live="polite">
+          <div
+            class="breath-circle"
+            :class="['breath-circle--' + currentPhase]"
+            :style="{ '--phase-progress': phaseProgress }"
+            aria-live="polite"
+          >
+            <div class="breath-progress" aria-hidden="true"></div>
             <p class="breath-phase-label">
               {{ phaseLabel }}
             </p>
+            <!--
+              Debug-only literal timer. Kept for development but hidden in the UI.
             <p class="breath-timer-label">
               {{ formattedElapsed }}
             </p>
+            -->
           </div>
           <p class="session-meta">
             <span v-if="isRunning">
@@ -101,7 +110,7 @@ import { useSessionConfigStore } from '../stores/sessionConfig'
 
 const saveSuccess = ref('')
 
-const mode = ref<SessionMode>('rounds')
+const mode = ref<SessionMode>('duration')
 const rounds = ref(10)
 const durationMinutes = ref(5)
 
@@ -117,6 +126,7 @@ const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out'>('inhale')
 const currentRound = ref(1)
 const elapsedTotal = ref(0)
 const elapsedPhase = ref(0)
+const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
 
 const canStart = computed(() => {
@@ -141,12 +151,19 @@ const phaseLabel = computed(() => {
 })
 
 const formattedElapsed = computed(() => {
-  const total = Math.floor(elapsedTotal.value)
-  const minutes = Math.floor(total / 60)
-    .toString()
-    .padStart(2, '0')
-  const seconds = (total % 60).toString().padStart(2, '0')
-  return `${minutes}:${seconds}`
+  // Show total elapsed with sub-second precision so fractional phase
+  // durations (e.g. 8.2s) are visible during the session.
+  const seconds = elapsedTotal.value
+  if (!Number.isFinite(seconds) || seconds < 0) return '0.0s'
+  return `${seconds.toFixed(1)}s`
+})
+
+const phaseProgress = computed(() => {
+  const total = currentPhaseDuration.value
+  if (!Number.isFinite(total) || total <= 0) return 0
+  const ratio = elapsedPhase.value / total
+  if (!Number.isFinite(ratio)) return 0
+  return Math.max(0, Math.min(1, ratio))
 })
 
 const lastDurationDisplay = computed(() => {
@@ -225,6 +242,7 @@ function handleStart() {
   currentRound.value = 1
   elapsedTotal.value = 0
   elapsedPhase.value = 0
+  currentPhaseDuration.value = firstPhase.durationSec
 
   timerEngine.init(
     {
@@ -239,6 +257,10 @@ function handleStart() {
         currentRound.value = state.currentRound
         elapsedPhase.value = state.currentPhaseElapsed
         elapsedTotal.value = state.totalElapsed
+        const nextPhaseConfig = phases.find((p) => p.phase === state.currentPhase)
+        if (nextPhaseConfig) {
+          currentPhaseDuration.value = nextPhaseConfig.durationSec
+        }
         audioController.playPhaseTone()
       },
       onTick(state) {
@@ -556,6 +578,18 @@ onBeforeUnmount(() => {
   transition:
     background-color 200ms ease,
     transform 500ms ease;
+}
+
+.breath-progress {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    rgba(34, 197, 94, 0.85) calc(var(--phase-progress, 0) * 360deg),
+    rgba(15, 23, 42, 0.7) 0
+  );
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .breath-phase-label {
