@@ -48,8 +48,8 @@ const onSettingsClick = () => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at top, #1e293b, #020617);
-  color: #f9fafb;
+  background: var(--color-app-root-bg);
+  color: var(--color-text-main);
   font-family:
     system-ui,
     -apple-system,
@@ -64,16 +64,16 @@ const onSettingsClick = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+  border-bottom: 1px solid var(--color-border-header);
   backdrop-filter: blur(12px);
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.6));
+  background: var(--color-header-bg);
 }
 
 .app-title {
   font-size: 1.2rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #e5e7eb;
+  color: var(--color-text-strong);
 }
 
 .app-nav {
@@ -87,7 +87,7 @@ const onSettingsClick = () => {
   border-radius: 999px;
   font-size: 0.9rem;
   text-decoration: none;
-  color: #cbd5f5;
+  color: var(--color-nav-link);
   border: 1px solid transparent;
   transition:
     background-color 160ms ease,
@@ -96,12 +96,12 @@ const onSettingsClick = () => {
 }
 
 .nav-link:hover {
-  background-color: rgba(148, 163, 184, 0.15);
+  background-color: var(--color-nav-link-hover-bg);
 }
 
 .nav-link--active {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
-  color: #020617;
+  background: var(--gradient-nav-pill-active);
+  color: var(--color-text-on-primary);
   border-color: rgba(34, 197, 94, 0.2);
 }
 

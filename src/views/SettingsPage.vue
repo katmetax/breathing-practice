@@ -328,20 +328,18 @@ onBeforeUnmount(() => {
 }
 
 .panel {
-  background: rgba(15, 23, 42, 0.92);
+  background: var(--color-surface-panel);
   border-radius: 1.2rem;
   padding: 1.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow:
-    0 18px 60px rgba(15, 23, 42, 0.9),
-    0 0 0 1px rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--shadow-panel);
 }
 
 .panel-title {
   font-size: 1.05rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #cbd5f5;
+  color: var(--color-text-soft);
   margin-bottom: 1rem;
 }
 
@@ -357,7 +355,7 @@ onBeforeUnmount(() => {
 
 .fieldset {
   border-radius: 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid var(--color-border-strong);
   padding: 1rem;
 }
 
@@ -366,7 +364,7 @@ onBeforeUnmount(() => {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .form-actions {
@@ -399,33 +397,33 @@ onBeforeUnmount(() => {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .field-input {
-  background: rgba(15, 23, 42, 0.9);
+  background: var(--color-surface-soft);
   border-radius: 0.6rem;
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  border: 1px solid var(--color-border-strong);
   padding: 0.45rem 0.6rem;
-  color: #e5e7eb;
+  color: var(--color-text-strong);
   font-size: 0.9rem;
 }
 
 .field-input:focus-visible {
-  outline: 2px solid #22c55e;
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
 
 .field-error {
   margin-top: 0.3rem;
   font-size: 0.8rem;
-  color: #fecaca;
+  color: var(--color-danger-soft);
 }
 
 .field-success {
   margin-top: 0.3rem;
   font-size: 0.8rem;
-  color: #bbf7d0;
+  color: var(--color-success-soft);
 }
 
 .btn {
@@ -444,16 +442,16 @@ onBeforeUnmount(() => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
-  color: #020617;
-  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.35);
+  background: var(--gradient-primary);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-primary);
   width: 100%;
   margin-top: 5%;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 18px 40px rgba(34, 197, 94, 0.5);
+  box-shadow: var(--shadow-primary-hover);
 }
 
 .btn-primary:disabled {
@@ -463,9 +461,9 @@ onBeforeUnmount(() => {
 }
 
 .btn-secondary {
-  background: rgba(15, 23, 42, 0.9);
-  color: #e5e7eb;
-  border: 1px solid rgba(148, 163, 184, 0.9);
+  background: var(--color-surface-soft);
+  color: var(--color-text-strong);
+  border: 1px solid var(--color-border-strong);
 }
 
 .btn-secondary:hover {
@@ -475,12 +473,12 @@ onBeforeUnmount(() => {
 .btn-ghost {
   margin-top: 0.5rem;
   background: transparent;
-  color: #cbd5f5;
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  color: var(--color-text-soft);
+  border: 1px solid var(--color-border-strong);
 }
 
 .btn-ghost:hover {
-  background: rgba(15, 23, 42, 0.9);
+  background: var(--color-surface-soft);
 }
 
 .presets-section {
@@ -498,7 +496,7 @@ onBeforeUnmount(() => {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -540,8 +538,8 @@ onBeforeUnmount(() => {
   border-radius: 0.75rem;
   padding: 0.55rem 0.75rem;
   border: 1px solid transparent;
-  background: rgba(15, 23, 42, 0.9);
-  color: #e5e7eb;
+  background: var(--color-surface-soft);
+  color: var(--color-text-strong);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -553,12 +551,12 @@ onBeforeUnmount(() => {
 }
 
 .preset-button:hover {
-  background: rgba(15, 23, 42, 0.95);
-  border-color: rgba(148, 163, 184, 0.8);
+  background: var(--color-surface-soft-strong);
+  border-color: var(--color-border-strong);
 }
 
 .preset-button--active {
-  border-color: rgba(34, 197, 94, 0.9);
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
 }
 
@@ -568,7 +566,7 @@ onBeforeUnmount(() => {
   font-size: 0.75rem;
   border: 0;
   background: transparent;
-  color: #f75050;
+  color: var(--color-danger);
   cursor: pointer;
   transition:
     background-color 120ms ease,
@@ -599,9 +597,9 @@ onBeforeUnmount(() => {
   border-radius: 0.6rem;
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
-  border: 1px solid rgba(148, 163, 184, 0.8);
-  background: rgba(15, 23, 42, 0.95);
-  color: #e5e7eb;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-soft-strong);
+  color: var(--color-text-strong);
   cursor: pointer;
   transition:
     background-color 120ms ease,
@@ -620,11 +618,11 @@ onBeforeUnmount(() => {
 
 .preset-meta {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .muted {
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
@@ -632,15 +630,15 @@ onBeforeUnmount(() => {
   display: inline-flex;
   padding: 0.2rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-strong);
   margin-bottom: 0.6rem;
 }
 
 .mode-pill {
   border: none;
   background: transparent;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
   cursor: pointer;
@@ -648,8 +646,8 @@ onBeforeUnmount(() => {
 }
 
 .mode-pill--active {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
-  color: #020617;
+  background: var(--gradient-primary);
+  color: var(--color-text-on-primary);
 }
 
 .session-visual {
@@ -664,8 +662,8 @@ onBeforeUnmount(() => {
   width: 230px;
   height: 230px;
   border-radius: 999px;
-  background: radial-gradient(circle at 20% 0, #1e40af, #0f172a);
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: var(--gradient-breath-circle);
+  border: 1px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -687,7 +685,7 @@ onBeforeUnmount(() => {
 .breath-timer-label {
   font-variant-numeric: tabular-nums;
   font-size: 1.4rem;
-  color: #d1fae5;
+  color: var(--color-primary-soft);
 }
 
 .breath-circle::after {
@@ -695,7 +693,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 10%;
   border-radius: inherit;
-  border: 2px solid rgba(148, 163, 184, 0.4);
+  border: 2px solid var(--color-border-subtle);
   pointer-events: none;
 }
 
@@ -723,6 +721,6 @@ onBeforeUnmount(() => {
 
 .session-meta {
   font-size: 0.85rem;
-  color: #e5e7eb;
+  color: var(--color-text-strong);
 }
 </style>

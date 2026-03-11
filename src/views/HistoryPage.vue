@@ -70,13 +70,11 @@ function formatDuration(seconds: number): string {
 }
 
 .history-panel {
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--color-surface-panel-strong);
   border-radius: 1.2rem;
   padding: 1.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow:
-    0 18px 60px rgba(15, 23, 42, 0.9),
-    0 0 0 1px rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--shadow-panel);
 }
 
 .history-header {
@@ -87,25 +85,25 @@ function formatDuration(seconds: number): string {
   font-size: 1.1rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #cbd5f5;
+  color: var(--color-text-soft);
 }
 
 .history-subtitle {
   margin-top: 0.35rem;
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .empty-state {
   padding: 1.25rem;
   border-radius: 0.9rem;
-  border: 1px dashed rgba(148, 163, 184, 0.6);
+  border: 1px dashed var(--color-border-dashed-soft);
   text-align: center;
 }
 
 .empty-text {
   margin-bottom: 0.75rem;
-  color: #e5e7eb;
+  color: var(--color-text-strong);
 }
 
 .session-list {
@@ -120,8 +118,8 @@ function formatDuration(seconds: number): string {
 .session-item {
   padding: 0.7rem 0.85rem;
   border-radius: 0.8rem;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -135,18 +133,18 @@ function formatDuration(seconds: number): string {
 
 .session-date {
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: var(--color-text-strong);
 }
 
 .session-duration {
   font-size: 0.9rem;
-  color: #bbf7d0;
+  color: var(--color-success-soft);
   font-variant-numeric: tabular-nums;
 }
 
 .session-note {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .btn {
@@ -161,8 +159,8 @@ function formatDuration(seconds: number): string {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #22c55e, #06b6d4);
-  color: #020617;
+  background: var(--gradient-primary);
+  color: var(--color-text-on-primary);
 }
 </style>
 
