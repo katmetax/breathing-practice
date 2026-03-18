@@ -28,7 +28,7 @@
             </p>
           </div>
           <p class="session-note">
-            {{ session.presetId ? 'Preset-based session' : 'Custom session' }}
+            {{ sessionLabel(session) }}
           </p>
         </li>
       </ul>
@@ -39,8 +39,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { historyService } from '../services/historyService';
+import { presetManager } from '../services/presetManager';
 
 const sessions = computed(() => historyService.listRecent(50));
+
+function sessionLabel(session: { presetId: string | null; presetName?: string | null }): string {
+  if (!session.presetId) return 'Custom session';
+  if (session.presetName) return session.presetName;
+  const preset = presetManager.getById(session.presetId);
+  return preset?.name ?? 'Preset-based session';
+}
 
 function formatDate(iso: string): string {
   const date = new Date(iso);

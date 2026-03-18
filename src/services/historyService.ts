@@ -71,6 +71,7 @@ class HistoryService {
         },
         body: JSON.stringify({
           preset_id: record.presetId,
+          preset_name: record.presetName ?? null,
           duration_seconds: record.durationSeconds,
           completed_at: record.completedAt,
         }),

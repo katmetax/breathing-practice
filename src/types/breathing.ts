@@ -26,6 +26,7 @@ export interface SessionConfig {
 export interface BreathSessionRecord {
   id: string;
   presetId: string | null;
+  presetName?: string | null;
   durationSeconds: number;
   completedAt: string; // ISO timestamp
 }
