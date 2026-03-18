@@ -51,7 +51,14 @@
             </div>
           </fieldset>
 
-          <button class="btn btn-primary" type="submit" :disabled="!canStart">Start</button>
+          <button
+            class="btn btn-primary"
+            type="submit"
+            :disabled="!canStart || isRunning || isCountingDown"
+          >
+            <span v-if="isCountingDown">Starting in {{ countdownRemaining }}…</span>
+            <span v-else>Start</span>
+          </button>
           <p v-if="startError" class="field-error">
             {{ startError }}
           </p>
@@ -66,7 +73,7 @@
           >
             <div class="breath-progress" aria-hidden="true"></div>
             <p class="breath-phase-label">
-              {{ phaseLabel }}
+              {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
             </p>
             <!--
               Debug-only literal timer. Kept for development but hidden in the UI.
@@ -122,12 +129,16 @@ const { selectedPresetId } = storeToRefs(sessionConfigStore)
 
 const isRunning = ref(false)
 const sessionComplete = ref(false)
+const isCountingDown = ref(false)
+const countdownRemaining = ref(0)
 const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out'>('inhale')
 const currentRound = ref(1)
 const elapsedTotal = ref(0)
 const elapsedPhase = ref(0)
 const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
+
+let countdownTimer: number | null = null
 
 const canStart = computed(() => {
   if (!selectedPresetId.value) return false
@@ -195,46 +206,25 @@ function reloadPresets() {
 
 reloadPresets()
 
-function handleStart() {
-  startError.value = ''
-  saveSuccess.value = ''
-
-  const preset =
-    selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)
-  if (!preset) {
-    startError.value = 'Please choose a preset before starting.'
-    return
+function cancelCountdown() {
+  if (countdownTimer != null) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
   }
+  isCountingDown.value = false
+  countdownRemaining.value = 0
+}
 
-  if (mode.value === 'rounds') {
-    if (!rounds.value || rounds.value <= 0) {
-      startError.value = 'Please choose at least one round.'
-      return
-    }
-  } else if (!durationMinutes.value || durationMinutes.value <= 0) {
-    startError.value = 'Please choose a positive duration.'
-    return
-  }
-
-  const phases = [
-    { phase: 'inhale' as const, durationSec: preset.inhaleSec },
-    { phase: 'hold_in' as const, durationSec: preset.holdInSec },
-    { phase: 'exhale' as const, durationSec: preset.exhaleSec },
-    { phase: 'hold_out' as const, durationSec: preset.holdOutSec },
-  ].filter((p) => p.durationSec > 0)
-
-  if (phases.length === 0) {
-    startError.value = 'Preset has no non-zero phases. Please adjust the pattern.'
-    return
-  }
+function beginSession(
+  preset: BreathPreset,
+  phases: { phase: BreathPreset['phaseOrder'][number]; durationSec: number }[],
+  totalDurationSec: number | undefined,
+) {
   const firstPhase = phases[0]
   if (!firstPhase) {
     startError.value = 'Unable to start: missing first phase.'
     return
   }
-
-  const totalDurationSec =
-    mode.value === 'duration' ? Math.round(durationMinutes.value * 60) : undefined
 
   sessionComplete.value = false
   lastDurationSec.value = null
@@ -275,6 +265,7 @@ function handleStart() {
 
         historyService.add({
           presetId: preset.id,
+          presetName: preset.name,
           durationSeconds: Math.round(state.totalElapsed),
         })
       },
@@ -286,12 +277,71 @@ function handleStart() {
   audioController.playPhaseTone()
 }
 
+function handleStart() {
+  cancelCountdown()
+
+  startError.value = ''
+  saveSuccess.value = ''
+
+  const preset =
+    selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)
+  if (!preset) {
+    startError.value = 'Please choose a preset before starting.'
+    return
+  }
+
+  if (mode.value === 'rounds') {
+    if (!rounds.value || rounds.value <= 0) {
+      startError.value = 'Please choose at least one round.'
+      return
+    }
+  } else if (!durationMinutes.value || durationMinutes.value <= 0) {
+    startError.value = 'Please choose a positive duration.'
+    return
+  }
+
+  const phases = [
+    { phase: 'inhale' as const, durationSec: preset.inhaleSec },
+    { phase: 'hold_in' as const, durationSec: preset.holdInSec },
+    { phase: 'exhale' as const, durationSec: preset.exhaleSec },
+    { phase: 'hold_out' as const, durationSec: preset.holdOutSec },
+  ].filter((p) => p.durationSec > 0)
+
+  if (phases.length === 0) {
+    startError.value = 'Preset has no non-zero phases. Please adjust the pattern.'
+    return
+  }
+
+  const totalDurationSec =
+    mode.value === 'duration' ? Math.round(durationMinutes.value * 60) : undefined
+
+  isCountingDown.value = true
+  countdownRemaining.value = 3
+  countdownTimer = window.setInterval(() => {
+    if (countdownRemaining.value <= 1) {
+      cancelCountdown()
+      beginSession(preset, phases, totalDurationSec)
+    } else {
+      countdownRemaining.value -= 1
+    }
+  }, 1000)
+}
+
 function handleStop() {
+  cancelCountdown()
   timerEngine.stop()
   isRunning.value = false
+  sessionComplete.value = false
+  lastDurationSec.value = null
+  currentPhase.value = 'inhale'
+  currentRound.value = 1
+  elapsedTotal.value = 0
+  elapsedPhase.value = 0
+  currentPhaseDuration.value = 1
 }
 
 onBeforeUnmount(() => {
+  cancelCountdown()
   timerEngine.stop()
 })
 </script>
