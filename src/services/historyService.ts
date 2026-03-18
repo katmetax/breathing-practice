@@ -1,6 +1,6 @@
-import type { BreathSessionRecord } from '../types/breathing';
+import type { BreathSessionRecord } from '../types/breathing'
 
-const HISTORY_KEY = 'breathing_sessions_v1';
+const HISTORY_KEY = 'breathing_sessions_v1'
 
 /**
  * Lightweight local history store standing in for the `breath_sessions` table.
@@ -9,56 +9,58 @@ const HISTORY_KEY = 'breathing_sessions_v1';
  * There are deliberately no streak counters or gamified metrics.
  */
 class HistoryService {
-  private sessions: BreathSessionRecord[] = [];
-  private initialized = false;
+  private sessions: BreathSessionRecord[] = []
+  private initialized = false
 
   private ensureLoaded() {
-    if (this.initialized) return;
-    this.initialized = true;
+    if (this.initialized) return
+    this.initialized = true
 
     try {
-      const raw = window.localStorage.getItem(HISTORY_KEY);
+      const raw = window.localStorage.getItem(HISTORY_KEY)
       if (!raw) {
-        this.sessions = [];
-        return;
+        this.sessions = []
+        return
       }
-      this.sessions = JSON.parse(raw) as BreathSessionRecord[];
+      this.sessions = JSON.parse(raw) as BreathSessionRecord[]
     } catch {
-      this.sessions = [];
+      this.sessions = []
     }
   }
 
   private persist() {
     try {
-      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(this.sessions));
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(this.sessions))
     } catch {
       // Ignore storage errors to keep UX smooth.
     }
   }
 
-  listRecent(limit = 50): BreathSessionRecord[] {
-    this.ensureLoaded();
+  listAll(): BreathSessionRecord[] {
+    this.ensureLoaded()
     return [...this.sessions]
-      .sort(
-        (a, b) =>
-          new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime(),
-      )
-      .slice(0, limit);
+  }
+
+  listRecent(limit = 50): BreathSessionRecord[] {
+    this.ensureLoaded()
+    return [...this.sessions]
+      .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+      .slice(0, limit)
   }
 
   add(record: Omit<BreathSessionRecord, 'id' | 'completedAt'>) {
-    this.ensureLoaded();
+    this.ensureLoaded()
     const fullRecord: BreathSessionRecord = {
       id: crypto.randomUUID(),
       completedAt: new Date().toISOString(),
       ...record,
-    };
-    this.sessions.push(fullRecord);
-    this.persist();
+    }
+    this.sessions.push(fullRecord)
+    this.persist()
 
     // Simulate a lightweight POST to a backend endpoint.
     // In a full implementation this would use fetch() and handle failures.
-    void this.postToBackend(fullRecord);
+    void this.postToBackend(fullRecord)
   }
 
   private async postToBackend(record: BreathSessionRecord) {
@@ -75,12 +77,11 @@ class HistoryService {
           duration_seconds: record.durationSeconds,
           completed_at: record.completedAt,
         }),
-      });
+      })
     } catch {
       // Ignore network errors; local history is the primary source.
     }
   }
 }
 
-export const historyService = new HistoryService();
-
+export const historyService = new HistoryService()

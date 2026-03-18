@@ -6,15 +6,14 @@
         <p class="history-subtitle">
           A gentle log of your past sessions — no streaks, no pressure.
         </p>
+        <span v-if="totalNumberOfSessions > 0">
+          {{ totalNumberOfSessions }} completed sessions
+        </span>
       </header>
 
       <div v-if="sessions.length === 0" class="empty-state">
-        <p class="empty-text">
-          You have not completed any sessions yet.
-        </p>
-        <RouterLink to="/" class="btn btn-primary">
-          Start a first session
-        </RouterLink>
+        <p class="empty-text">You have not completed any sessions yet.</p>
+        <RouterLink to="/" class="btn btn-primary"> Start a first session </RouterLink>
       </div>
 
       <ul v-else class="session-list">
@@ -37,37 +36,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { historyService } from '../services/historyService';
-import { presetManager } from '../services/presetManager';
+import { computed } from 'vue'
+import { historyService } from '../services/historyService'
+import { presetManager } from '../services/presetManager'
 
-const sessions = computed(() => historyService.listRecent(50));
+const sessions = computed(() => historyService.listRecent(50))
+const totalNumberOfSessions = computed(() => historyService.listAll()?.length)
 
 function sessionLabel(session: { presetId: string | null; presetName?: string | null }): string {
-  if (!session.presetId) return 'Custom session';
-  if (session.presetName) return session.presetName;
-  const preset = presetManager.getById(session.presetId);
-  return preset?.name ?? 'Preset-based session';
+  if (!session.presetId) return 'Custom session'
+  if (session.presetName) return session.presetName
+  const preset = presetManager.getById(session.presetId)
+  return preset?.name ?? 'Preset-based session'
 }
 
 function formatDate(iso: string): string {
-  const date = new Date(iso);
+  const date = new Date(iso)
   return date.toLocaleString(undefined, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
 function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
   if (minutes === 0) {
-    return `${remainingSeconds} seconds`;
+    return `${remainingSeconds} seconds`
   }
-  return `${minutes} min ${remainingSeconds.toString().padStart(2, '0')} sec`;
+  return `${minutes} min ${remainingSeconds.toString().padStart(2, '0')} sec`
 }
 </script>
 
@@ -171,4 +171,3 @@ function formatDuration(seconds: number): string {
   color: var(--color-text-on-primary);
 }
 </style>
-
