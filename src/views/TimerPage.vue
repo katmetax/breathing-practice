@@ -96,6 +96,10 @@
             </span>
           </p>
 
+          <span v-if="selectedPreset" class="muted">
+            Selected preset: {{ selectedPreset.name }}
+          </span>
+
           <button v-if="isRunning" class="btn btn-ghost" type="button" @click="handleStop">
             Stop session
           </button>
@@ -137,6 +141,9 @@ const elapsedTotal = ref(0)
 const elapsedPhase = ref(0)
 const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
+const selectedPreset = ref(
+  selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value),
+)
 
 let countdownTimer: number | null = null
 
