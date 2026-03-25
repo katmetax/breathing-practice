@@ -64,9 +64,7 @@ const onSettingsClick = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-border-header);
   backdrop-filter: blur(12px);
-  background: var(--color-header-bg);
 }
 
 .app-title {

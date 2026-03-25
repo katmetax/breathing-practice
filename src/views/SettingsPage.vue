@@ -426,61 +426,6 @@ onBeforeUnmount(() => {
   color: var(--color-success-soft);
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.45rem 1rem;
-  font-size: 0.9rem;
-  border: none;
-  cursor: pointer;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease,
-    background-color 140ms ease;
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  color: var(--color-text-on-primary);
-  box-shadow: var(--shadow-primary);
-  width: 100%;
-  margin-top: 5%;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-primary-hover);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  box-shadow: none;
-  cursor: default;
-}
-
-.btn-secondary {
-  background: var(--color-surface-soft);
-  color: var(--color-text-strong);
-  border: 1px solid var(--color-border-strong);
-}
-
-.btn-secondary:hover {
-  background: rgba(30, 64, 175, 0.6);
-}
-
-.btn-ghost {
-  margin-top: 0.5rem;
-  background: transparent;
-  color: var(--color-text-soft);
-  border: 1px solid var(--color-border-strong);
-}
-
-.btn-ghost:hover {
-  background: var(--color-surface-soft);
-}
-
 .presets-section {
   margin-top: 1.25rem;
 }

@@ -1,70 +1,12 @@
 <template>
   <section class="timer-page">
-    <div class="timer-layout">
-      <div class="panel">
-        <h2 class="panel-title">Practice</h2>
-
-        <form class="form form--session" @submit.prevent="handleStart">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Session Mode</legend>
-            <div class="mode-toggle">
-              <button
-                class="mode-pill"
-                type="button"
-                :class="{ 'mode-pill--active': mode === 'duration' }"
-                @click="mode = 'duration'"
-              >
-                Total Duration
-              </button>
-              <button
-                class="mode-pill"
-                type="button"
-                :class="{ 'mode-pill--active': mode === 'rounds' }"
-                @click="mode = 'rounds'"
-              >
-                Rounds
-              </button>
-            </div>
-
-            <div v-if="mode === 'rounds'" class="field">
-              <span class="field-label">Number of rounds</span>
-              <input
-                v-model.number="rounds"
-                class="field-input"
-                type="number"
-                min="1"
-                max="200"
-                required
-              />
-            </div>
-
-            <div v-else class="field">
-              <span class="field-label">Duration (minutes)</span>
-              <input
-                v-model.number="durationMinutes"
-                class="field-input"
-                type="number"
-                min="1"
-                max="120"
-                required
-              />
-            </div>
-          </fieldset>
-
-          <button
-            class="btn btn-primary"
-            type="submit"
-            :disabled="!canStart || isRunning || isCountingDown"
-          >
-            <span v-if="isCountingDown">Starting in {{ countdownRemaining }}…</span>
-            <span v-else>Start</span>
-          </button>
-          <p v-if="startError" class="field-error">
-            {{ startError }}
-          </p>
-        </form>
-
+    <div>
+      <div>
         <section class="session-visual">
+          <p class="breath-phase-label">
+            {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
+          </p>
+
           <div
             class="breath-circle"
             :class="['breath-circle--' + currentPhase]"
@@ -72,9 +14,7 @@
             aria-live="polite"
           >
             <div class="breath-progress" aria-hidden="true"></div>
-            <p class="breath-phase-label">
-              {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
-            </p>
+
             <!--
               Debug-only literal timer. Kept for development but hidden in the UI.
             <p class="breath-timer-label">
@@ -104,6 +44,67 @@
             Stop session
           </button>
         </section>
+
+        <form class="form form--session" @submit.prevent="handleStart">
+          <div class="session-settings">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Session Mode</legend>
+              <div class="mode-toggle">
+                <button
+                  class="mode-pill"
+                  type="button"
+                  :class="{ 'mode-pill--active': mode === 'duration' }"
+                  @click="mode = 'duration'"
+                >
+                  Total Duration
+                </button>
+                <button
+                  class="mode-pill"
+                  type="button"
+                  :class="{ 'mode-pill--active': mode === 'rounds' }"
+                  @click="mode = 'rounds'"
+                >
+                  Rounds
+                </button>
+              </div>
+
+              <div v-if="mode === 'rounds'" class="field">
+                <span class="field-label">Number of rounds</span>
+                <input
+                  v-model.number="rounds"
+                  class="field-input"
+                  type="number"
+                  min="1"
+                  max="200"
+                  required
+                />
+              </div>
+
+              <div v-else class="field">
+                <span class="field-label">Duration (minutes)</span>
+                <input
+                  v-model.number="durationMinutes"
+                  class="field-input"
+                  type="number"
+                  min="1"
+                  max="120"
+                  required
+                />
+              </div>
+            </fieldset>
+
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="!canStart || isRunning || isCountingDown"
+            >
+              <span>Start</span>
+            </button>
+            <p v-if="startError" class="field-error">
+              {{ startError }}
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   </section>
@@ -135,7 +136,7 @@ const isRunning = ref(false)
 const sessionComplete = ref(false)
 const isCountingDown = ref(false)
 const countdownRemaining = ref(0)
-const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out'>('inhale')
+const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out' | ''>('')
 const currentRound = ref(1)
 const elapsedTotal = ref(0)
 const elapsedPhase = ref(0)
@@ -391,10 +392,24 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  justify-self: center;
+  align-items: center;
+  width: 100%;
 }
 
 .form--session {
   margin-bottom: 1.5rem;
+}
+
+.session-settings {
+  width: 50%;
+}
+
+.btn-primary {
+  display: flex;
+  justify-self: center;
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .fieldset {
@@ -461,59 +476,6 @@ onBeforeUnmount(() => {
   margin-top: 0.3rem;
   font-size: 0.8rem;
   color: var(--color-success-soft);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.45rem 1rem;
-  font-size: 0.9rem;
-  border: none;
-  cursor: pointer;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease,
-    background-color 140ms ease;
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  color: var(--color-text-on-primary);
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-primary-hover);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  box-shadow: none;
-  cursor: default;
-}
-
-.btn-secondary {
-  background: var(--color-surface-soft);
-  color: var(--color-text-strong);
-  border: 1px solid var(--color-border-strong);
-}
-
-.btn-secondary:hover {
-  background: rgba(30, 64, 175, 0.6);
-}
-
-.btn-ghost {
-  margin-top: 0.5rem;
-  background: transparent;
-  color: var(--color-text-soft);
-  border: 1px solid var(--color-border-strong);
-}
-
-.btn-ghost:hover {
-  background: var(--color-surface-soft);
 }
 
 .presets-section {
@@ -610,11 +572,11 @@ onBeforeUnmount(() => {
 }
 
 .session-visual {
-  margin-top: 0.5rem;
+  margin: 5rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 2rem;
 }
 
 .breath-circle {
@@ -622,7 +584,6 @@ onBeforeUnmount(() => {
   height: 230px;
   border-radius: 999px;
   background: var(--gradient-breath-circle);
-  border: 1px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -664,7 +625,6 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 10%;
   border-radius: inherit;
-  border: 2px solid var(--color-border-subtle);
   pointer-events: none;
 }
 
