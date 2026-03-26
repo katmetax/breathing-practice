@@ -328,19 +328,22 @@ onBeforeUnmount(() => {
 }
 
 .panel {
-  background: var(--color-surface-panel);
   border-radius: 1.2rem;
   padding: 1.5rem;
-  border: 1px solid var(--color-border-soft);
   box-shadow: var(--shadow-panel);
+  min-width: 550px;
 }
 
 .panel-title {
   font-size: 1.05rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-text-soft);
   margin-bottom: 1rem;
+}
+
+.btn-primary {
+  width: 100%;
+  margin: 1rem 0;
 }
 
 .form {
@@ -401,11 +404,11 @@ onBeforeUnmount(() => {
 }
 
 .field-input {
-  background: var(--color-surface-soft);
+  background: transparent;
   border-radius: 0.6rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-border-soft);
   padding: 0.45rem 0.6rem;
-  color: var(--color-text-strong);
+  color: var(--color-text-main);
   font-size: 0.9rem;
 }
 
@@ -497,12 +500,10 @@ onBeforeUnmount(() => {
 
 .preset-button:hover {
   background: var(--color-surface-soft-strong);
-  border-color: var(--color-border-strong);
 }
 
 .preset-button--active {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
 }
 
 .preset-delete-button {
