@@ -23,7 +23,7 @@
             -->
           </div>
           <p class="session-meta">
-            <span v-if="isRunning">
+            <span v-if="isRunning" class="muted">
               Round {{ currentRound }} •
               {{ mode === 'rounds' ? `${rounds} total` : 'duration mode' }}
             </span>
@@ -36,16 +36,25 @@
             </span>
           </p>
 
-          <span v-if="selectedPreset" class="muted">
-            Selected preset: {{ selectedPreset.name }}
+          <span v-if="selectedPreset" class="muted preset-name">
+            Preset: {{ selectedPreset.name }}
           </span>
 
-          <button v-if="isRunning" class="btn btn-ghost" type="button" @click="handleStop">
+          <button
+            v-if="isRunning || isCountingDown"
+            class="btn btn-ghost"
+            type="button"
+            @click="handleStop"
+          >
             Stop session
           </button>
         </section>
 
-        <form class="form form--session" @submit.prevent="handleStart">
+        <form
+          class="form form--session"
+          @submit.prevent="handleStart"
+          v-if="!isRunning && !isCountingDown"
+        >
           <div class="session-settings">
             <fieldset class="fieldset">
               <legend class="fieldset-legend">Session Mode</legend>
@@ -70,26 +79,52 @@
 
               <div v-if="mode === 'rounds'" class="field">
                 <span class="field-label">Number of rounds</span>
-                <input
-                  v-model.number="rounds"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="200"
-                  required
-                />
+
+                <div class="slider-wrapper">
+                  <div class="display">
+                    <span class="time-value">{{ rounds }}</span>
+                    <span class="unit">RND</span>
+                  </div>
+
+                  <input
+                    type="range"
+                    v-model.number="rounds"
+                    min="1"
+                    max="60"
+                    step="1"
+                    class="transparent-slider"
+                  />
+
+                  <div class="range-labels">
+                    <span>1 RND</span>
+                    <span>60 RND</span>
+                  </div>
+                </div>
               </div>
 
               <div v-else class="field">
                 <span class="field-label">Duration (minutes)</span>
-                <input
-                  v-model.number="durationMinutes"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="120"
-                  required
-                />
+
+                <div class="slider-wrapper">
+                  <div class="display">
+                    <span class="time-value">{{ durationMinutes }}</span>
+                    <span class="unit">MIN</span>
+                  </div>
+
+                  <input
+                    type="range"
+                    v-model.number="durationMinutes"
+                    min="1"
+                    max="30"
+                    step="1"
+                    class="transparent-slider"
+                  />
+
+                  <div class="range-labels">
+                    <span>1 MIN</span>
+                    <span>30 MIN</span>
+                  </div>
+                </div>
               </div>
             </fieldset>
 
@@ -124,7 +159,7 @@ const saveSuccess = ref('')
 
 const mode = ref<SessionMode>('duration')
 const rounds = ref(10)
-const durationMinutes = ref(5)
+const durationMinutes = ref<number>(5)
 
 const startError = ref('')
 
@@ -143,7 +178,8 @@ const elapsedPhase = ref(0)
 const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
 const selectedPreset = ref(
-  selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value),
+  (selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)) ||
+    presets.value[0],
 )
 
 let countdownTimer: number | null = null
@@ -268,6 +304,7 @@ function beginSession(
       onComplete(state) {
         isRunning.value = false
         sessionComplete.value = true
+        currentPhase.value = ''
         lastDurationSec.value = Math.round(state.totalElapsed)
         audioController.playCompletionTone()
 
@@ -341,7 +378,7 @@ function handleStop() {
   isRunning.value = false
   sessionComplete.value = false
   lastDurationSec.value = null
-  currentPhase.value = 'inhale'
+  currentPhase.value = ''
   currentRound.value = 1
   elapsedTotal.value = 0
   elapsedPhase.value = 0
@@ -410,6 +447,85 @@ onBeforeUnmount(() => {
   justify-self: center;
   width: 100%;
   margin-top: 1rem;
+}
+
+.timer-picker {
+  padding: 20px;
+  background: transparent;
+  border-radius: 12px;
+}
+
+.display {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: baseline;
+  margin-bottom: 15px;
+  margin-top: -65px;
+  pointer-events: none;
+}
+
+.time-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-right: 5px;
+}
+
+.transparent-slider {
+  -webkit-appearance: none; /* Hides default browser styling */
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+
+/***** Chrome, Safari, Edge, and Opera *****/
+
+/* The Track (Background) */
+.transparent-slider::-webkit-slider-runnable-track {
+  background: var(--color-surface-soft-strong);
+  height: 5px;
+  border-radius: 4px;
+}
+
+/* The Thumb (Knob) */
+.transparent-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -10px; /* Centers thumb on the track */
+  background-color: var(--color-primary);
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/***** Firefox *****/
+
+/* The Track */
+.transparent-slider::-moz-range-track {
+  background: var(--color-surface-soft-strong);
+  height: 5px;
+  border-radius: 4px;
+}
+
+/* The Thumb */
+.transparent-slider::-moz-range-thumb {
+  background-color: var(--color-primary);
+  height: 25px;
+  width: 25px;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
 
 .fieldset {
@@ -547,6 +663,11 @@ onBeforeUnmount(() => {
   font-size: 0.85rem;
 }
 
+.preset-name {
+  text-transform: uppercase;
+  color: var(--color-text-strong);
+}
+
 .mode-toggle {
   display: inline-flex;
   padding: 0.2rem;
@@ -572,7 +693,7 @@ onBeforeUnmount(() => {
 }
 
 .session-visual {
-  margin: 5rem 0;
+  margin: 1rem 0 5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -609,9 +730,12 @@ onBeforeUnmount(() => {
 }
 
 .breath-phase-label {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: -20px;
 }
 
 .breath-timer-label {
