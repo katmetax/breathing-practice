@@ -104,7 +104,6 @@ const onSettingsClick = () => {
 }
 
 .app-main {
-  flex: 1;
   display: flex;
   justify-content: center;
   padding: 1.5rem;
