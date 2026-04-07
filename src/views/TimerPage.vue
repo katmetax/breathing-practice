@@ -58,14 +58,16 @@
           <div class="session-settings">
             <fieldset class="fieldset">
               <legend class="fieldset-legend">Session Mode</legend>
-              <div class="mode-toggle">
+              <div class="mode-toggle" :class="`is-${mode}`">
+                <div class="mode-slider"></div>
+
                 <button
                   class="mode-pill"
                   type="button"
                   :class="{ 'mode-pill--active': mode === 'duration' }"
                   @click="mode = 'duration'"
                 >
-                  Total Duration
+                  Duration
                 </button>
                 <button
                   class="mode-pill"
@@ -669,15 +671,33 @@ onBeforeUnmount(() => {
 }
 
 .mode-toggle {
+  position: relative;
   display: inline-flex;
   padding: 0.2rem;
   border-radius: 999px;
   background: var(--color-surface-soft);
   border: 1px solid var(--color-border-strong);
   margin-bottom: 0.6rem;
+  z-index: 1;
+}
+
+.mode-slider {
+  position: absolute;
+  width: calc(50% - 0.2rem);
+  height: calc(100% - 0.4rem);
+  background: var(--gradient-primary);
+  border-radius: 999px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.mode-toggle.is-rounds .mode-slider {
+  transform: translateX(100%);
 }
 
 .mode-pill {
+  position: relative;
+  flex: 1;
   border: none;
   background: transparent;
   color: var(--color-text-muted);
@@ -685,10 +705,11 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   cursor: pointer;
   font-size: 0.8rem;
+  transition: color 0.3s ease;
+  white-space: nowrap;
 }
 
 .mode-pill--active {
-  background: var(--gradient-primary);
   color: var(--color-text-on-primary);
 }
 
