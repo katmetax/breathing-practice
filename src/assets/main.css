@@ -48,7 +48,7 @@ a {
   --color-border-dashed-soft: rgba(148, 163, 184, 0.6);
 
   /* Text */
-  --color-text-main: #22a2b3;
+  --color-text-main: #777b82;
   --color-text-strong: #22a2b3;
   --color-text-muted: #9ca3af;
   --color-text-soft: #64779d;
@@ -99,6 +99,8 @@ a {
   max-width: 500px;
   border: none;
   cursor: pointer;
+  text-decoration: none;
+  margin: 1rem 0;
   transition:
     transform 120ms ease,
     box-shadow 120ms ease,

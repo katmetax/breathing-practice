@@ -1,36 +1,46 @@
 <template>
   <section class="history-page">
     <div class="history-panel">
-      <header class="history-header">
-        <h2 class="history-title">History</h2>
-        <p class="history-subtitle">
-          A gentle log of your past sessions — no streaks, no pressure.
-        </p>
-        <span v-if="totalNumberOfSessions > 0">
-          {{ totalNumberOfSessions }} completed sessions
-        </span>
-      </header>
-
-      <div v-if="sessions.length === 0" class="empty-state">
-        <p class="empty-text">You have not completed any sessions yet.</p>
-        <RouterLink to="/" class="btn btn-primary"> Start a first session </RouterLink>
-      </div>
-
-      <ul v-else class="session-list">
-        <li v-for="session in sessions" :key="session.id" class="session-item">
-          <div class="session-main">
-            <p class="session-date">
-              {{ formatDate(session.completedAt) }}
-            </p>
-            <p class="session-duration">
-              {{ formatDuration(session.durationSeconds) }}
+      <div class="glass-panel">
+        <header class="history-header">
+          <div class="history-titles">
+            <h2 class="history-title">History</h2>
+            <p class="history-subtitle">
+              A gentle log of your past sessions — no streaks, no pressure.
             </p>
           </div>
-          <p class="session-note">
-            {{ sessionLabel(session) }}
-          </p>
-        </li>
-      </ul>
+
+          <div
+            class="badge-base completed-sessions"
+            v-if="totalNumberOfSessions > 0"
+            title="Completed sessions"
+          >
+            <span class="number"><BreathIcon /> {{ totalNumberOfSessions }} </span>
+            <div class="glow-effect"></div>
+          </div>
+        </header>
+
+        <div v-if="sessions.length === 0" class="empty-state">
+          <p class="empty-text">You have not completed any sessions yet.</p>
+          <RouterLink to="/" class="btn btn-primary"> Start a first session </RouterLink>
+        </div>
+
+        <ul v-else class="session-list">
+          <li v-for="session in sessions" :key="session.id" class="session-item">
+            <div class="session-main">
+              <p class="session-date">
+                {{ formatDate(session.completedAt) }}
+              </p>
+              <p class="session-duration">
+                {{ formatDuration(session.durationSeconds) }}
+              </p>
+            </div>
+            <p class="session-note">
+              {{ sessionLabel(session) }}
+            </p>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 </template>
@@ -39,6 +49,7 @@
 import { computed } from 'vue'
 import { historyService } from '../services/historyService'
 import { presetManager } from '../services/presetManager'
+import BreathIcon from '~icons/material-symbols/air-rounded'
 
 const sessions = computed(() => historyService.listRecent(50))
 const totalNumberOfSessions = computed(() => historyService.listAll()?.length)
@@ -78,14 +89,31 @@ function formatDuration(seconds: number): string {
 }
 
 .history-panel {
-  background: var(--color-surface-panel-strong);
   border-radius: 1.2rem;
   padding: 1.5rem;
-  border: 1px solid var(--color-border-soft);
+}
+
+.glass-panel {
+  min-width: 550px;
+  padding: 1.5rem;
+
+  /* The core glass effect */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+
+  /* Border and Shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.2rem;
   box-shadow: var(--shadow-panel);
 }
 
+.history-titles {
+  flex: 1;
+}
+
 .history-header {
+  display: flex;
   margin-bottom: 1rem;
 }
 
@@ -93,7 +121,7 @@ function formatDuration(seconds: number): string {
   font-size: 1.1rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-text-soft);
+  color: var(--color-text-strong);
 }
 
 .history-subtitle {
@@ -111,7 +139,55 @@ function formatDuration(seconds: number): string {
 
 .empty-text {
   margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.badge-base {
+  font-family: sans-serif;
+}
+
+.creative-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+}
+
+.completed-sessions {
+  margin: 1rem 0.5rem 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 65px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.number {
+  display: flex;
+  position: relative;
+  z-index: 2;
   color: var(--color-text-strong);
+  font-weight: 900;
+  font-size: 17px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* The colorful glow moving behind the glass */
+.glow-effect {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: var(--gradient-breath-circle);
+  opacity: 0.4;
+  filter: blur(10px);
+  transform: rotate(270deg);
 }
 
 .session-list {
@@ -127,10 +203,12 @@ function formatDuration(seconds: number): string {
   padding: 0.7rem 0.85rem;
   border-radius: 0.8rem;
   background: var(--color-surface-soft);
-  border: 1px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+}
+
+.session-item p {
+  margin: 0.5rem;
 }
 
 .session-main {
@@ -141,7 +219,7 @@ function formatDuration(seconds: number): string {
 
 .session-date {
   font-size: 0.9rem;
-  color: var(--color-text-strong);
+  color: var(--color-text-main);
 }
 
 .session-duration {

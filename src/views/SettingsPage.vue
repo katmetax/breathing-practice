@@ -1,150 +1,155 @@
 <template>
-  <div class="panel">
-    <div class="glass-panel">
-      <h2 class="panel-title">Configure Session</h2>
+  <section class="settings-page">
+    <div class="panel">
+      <div class="glass-panel">
+        <h2 class="panel-title">Configure Session</h2>
 
-      <form class="form" @submit.prevent="handleSavePreset">
-        <fieldset class="fieldset">
-          <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
-          <div class="grid-2">
+        <form class="form" @submit.prevent="handleSavePreset">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
+            <div class="grid-2">
+              <label class="field">
+                <span class="field-label">Inhale</span>
+                <input
+                  v-model.number="inhale"
+                  class="field-input"
+                  type="number"
+                  min="1"
+                  max="60"
+                  step="0.1"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span class="field-label">Hold (after inhale)</span>
+                <input
+                  v-model.number="holdIn"
+                  class="field-input"
+                  type="number"
+                  min="0"
+                  max="60"
+                  step="0.1"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span class="field-label">Exhale</span>
+                <input
+                  v-model.number="exhale"
+                  class="field-input"
+                  type="number"
+                  min="1"
+                  max="60"
+                  step="0.1"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span class="field-label">Hold (after exhale)</span>
+                <input
+                  v-model.number="holdOut"
+                  class="field-input"
+                  type="number"
+                  min="0"
+                  max="60"
+                  step="0.1"
+                  required
+                />
+              </label>
+            </div>
             <label class="field">
-              <span class="field-label">Inhale</span>
+              <span class="field-label">Preset name</span>
               <input
-                v-model.number="inhale"
+                v-model="presetName"
                 class="field-input"
-                type="number"
-                min="1"
-                max="60"
-                step="0.1"
+                type="text"
+                maxlength="40"
+                placeholder="e.g. Box Breath"
                 required
               />
             </label>
-            <label class="field">
-              <span class="field-label">Hold (after inhale)</span>
-              <input
-                v-model.number="holdIn"
-                class="field-input"
-                type="number"
-                min="0"
-                max="60"
-                step="0.1"
-                required
-              />
-            </label>
-            <label class="field">
-              <span class="field-label">Exhale</span>
-              <input
-                v-model.number="exhale"
-                class="field-input"
-                type="number"
-                min="1"
-                max="60"
-                step="0.1"
-                required
-              />
-            </label>
-            <label class="field">
-              <span class="field-label">Hold (after exhale)</span>
-              <input
-                v-model.number="holdOut"
-                class="field-input"
-                type="number"
-                min="0"
-                max="60"
-                step="0.1"
-                required
-              />
-            </label>
-          </div>
-          <label class="field">
-            <span class="field-label">Preset name</span>
-            <input
-              v-model="presetName"
-              class="field-input"
-              type="text"
-              maxlength="40"
-              placeholder="e.g. Box Breath"
-              required
-            />
-          </label>
 
-          <div class="form-actions">
-            <button class="btn btn-primary" type="submit">
-              {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">
+                {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
+              </button>
+            </div>
+            <p v-if="saveError" class="field-error">
+              {{ saveError }}
+            </p>
+            <p v-if="saveSuccess" class="field-success">
+              {{ saveSuccess }}
+            </p>
+          </fieldset>
+        </form>
+
+        <section class="presets-section">
+          <div class="presets-header">
+            <h3 class="section-title">Preset Library</h3>
+            <button
+              class="btn btn-secondary btn-secondary--compact"
+              type="button"
+              @click="handleNewPreset"
+            >
+              New Preset
             </button>
           </div>
-          <p v-if="saveError" class="field-error">
-            {{ saveError }}
+          <p v-if="presets.length === 0" class="muted">
+            No presets yet. Create one to get started.
           </p>
-          <p v-if="saveSuccess" class="field-success">
-            {{ saveSuccess }}
-          </p>
-        </fieldset>
-      </form>
-
-      <section class="presets-section">
-        <div class="presets-header">
-          <h3 class="section-title">Preset Library</h3>
-          <button
-            class="btn btn-secondary btn-secondary--compact"
-            type="button"
-            @click="handleNewPreset"
-          >
-            New Preset
-          </button>
-        </div>
-        <p v-if="presets.length === 0" class="muted">No presets yet. Create one to get started.</p>
-        <ul v-else class="preset-list">
-          <li v-for="preset in presets" :key="preset.id" class="preset-item">
-            <div class="preset-row">
-              <button
-                class="preset-button"
-                type="button"
-                :class="{
-                  'preset-button--active': preset.id === selectedPresetId,
-                }"
-                @click="handleSelectPreset(preset.id)"
-              >
-                <span class="preset-name">{{ preset.name }}</span>
-                <span class="preset-meta">
-                  {{ formatSeconds(preset.inhaleSec) }} / {{ formatSeconds(preset.holdInSec) }} /
-                  {{ formatSeconds(preset.exhaleSec) }} / {{ formatSeconds(preset.holdOutSec) }} sec
-                </span>
-              </button>
-
-              <div class="preset-delete-container">
+          <ul v-else class="preset-list">
+            <li v-for="preset in presets" :key="preset.id" class="preset-item">
+              <div class="preset-row">
                 <button
-                  v-if="pendingDeleteId !== preset.id"
-                  class="preset-delete-button"
+                  class="preset-button"
                   type="button"
-                  :disabled="preset.isDefault"
-                  @click="pendingDeleteId = preset.id"
+                  :class="{
+                    'preset-button--active': preset.id === selectedPresetId,
+                  }"
+                  @click="handleSelectPreset(preset.id)"
                 >
-                  <DeleteIcon />
+                  <span class="preset-name">{{ preset.name }}</span>
+                  <span class="preset-meta">
+                    {{ formatSeconds(preset.inhaleSec) }} / {{ formatSeconds(preset.holdInSec) }} /
+                    {{ formatSeconds(preset.exhaleSec) }} /
+                    {{ formatSeconds(preset.holdOutSec) }} sec
+                  </span>
                 </button>
-                <div v-else class="preset-delete-confirm">
+
+                <div class="preset-delete-container">
                   <button
-                    class="preset-delete-confirm-btn"
+                    v-if="pendingDeleteId !== preset.id"
+                    class="preset-delete-button"
                     type="button"
-                    @click="handleDeletePreset(preset.id)"
+                    :disabled="preset.isDefault"
+                    @click="pendingDeleteId = preset.id"
                   >
-                    Confirm
+                    <DeleteIcon />
                   </button>
-                  <button
-                    class="preset-delete-cancel-btn"
-                    type="button"
-                    @click="pendingDeleteId = null"
-                  >
-                    Cancel
-                  </button>
+                  <div v-else class="preset-delete-confirm">
+                    <button
+                      class="preset-delete-confirm-btn"
+                      type="button"
+                      @click="handleDeletePreset(preset.id)"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      class="preset-delete-cancel-btn"
+                      type="button"
+                      @click="pendingDeleteId = null"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
-      </section>
+            </li>
+          </ul>
+        </section>
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -354,6 +359,7 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 1rem;
+  color: var(--color-text-strong);
 }
 
 .btn-primary {
