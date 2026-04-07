@@ -717,6 +717,19 @@ onBeforeUnmount(() => {
     transform 500ms ease;
 }
 
+.breath-circle-- {
+  animation: rotate-glow 30s linear infinite;
+}
+
+@keyframes rotate-glow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .breath-progress {
   position: absolute;
   inset: 0;
