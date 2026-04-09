@@ -7,21 +7,48 @@
             {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
           </p>
 
-          <div
-            class="breath-circle"
-            :class="['breath-circle--' + currentPhase]"
-            :style="{ '--phase-progress': phaseProgress }"
-            aria-live="polite"
-          >
-            <div class="breath-progress" aria-hidden="true"></div>
+          <div class="breath-blob-wrapper">
+            <svg
+              class="breath-blob-svg"
+              :style="`transition: transform ${isRunning ? currentPhaseDuration : 15}s cubic-bezier(0.4, 0, 0.2, 1)`"
+              :class="`breath-blob-phase--${currentPhase}`"
+              viewBox="-120 -120 240 240"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="blobGradient"
+                  gradientUnits="userSpaceOnUse"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                  class="gradient-element"
+                >
+                  <stop
+                    offset="0%"
+                    style="stop-color: var(--gradient-breath-start); stop-opacity: 1"
+                  />
+                  <stop
+                    offset="100%"
+                    style="stop-color: var(--gradient-breath-end); stop-opacity: 1"
+                  />
+                </linearGradient>
+              </defs>
 
-            <!--
+              <path
+                class="blob-path"
+                d="M 74.27332230365087,0 C 74.83693175213968,30.599222038082097 65.27071194691645,45.41079158492555 36.46015705833725,63.15084447698112 C 7.649602169758058,80.8908973690367 -10.577819325757552,86.74792268746755 -40.968897250665904,70.96021156822228 C -71.35997517557425,55.172500448977 -85.22055812868366,35.27848902977774 -85.10415464129615,1.042225305756047e-14 C -84.98775115390863,-35.278489029777724 -70.3307517775354,-55.34223363205183 -40.50328330111585,-70.15374455088865 C -10.67581482469631,-84.96525546972546 5.511567863190329,-76.78447981306942 34.20571926438201,-59.246043675347266 C 62.899870665573694,-41.70760753762511 73.70971285516207,-30.599222038082097 74.27332230365087,0 Z"
+              />
+            </svg>
+          </div>
+
+          <!--
               Debug-only literal timer. Kept for development but hidden in the UI.
             <p class="breath-timer-label">
               {{ formattedElapsed }}
             </p>
             -->
-          </div>
           <p class="session-meta">
             <span v-if="isRunning" class="muted">
               Round {{ currentRound }} •
@@ -201,7 +228,7 @@ const phaseLabel = computed(() => {
     case 'exhale':
       return 'Exhale'
     case 'hold_out':
-      return 'Hold (empty)'
+      return 'Hold'
     default:
       return ''
   }
@@ -721,25 +748,54 @@ onBeforeUnmount(() => {
   gap: 2rem;
 }
 
-.breath-circle {
-  width: 230px;
-  height: 230px;
-  border-radius: 999px;
-  background: var(--gradient-breath-circle);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  position: relative;
-  overflow: hidden;
-  transition:
-    background-color 200ms ease,
-    transform 500ms ease;
+.breath-phase-label {
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: -20px;
 }
 
-.breath-circle-- {
+.breath-blob-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  height: 300px;
+}
+
+.breath-blob-svg {
+  width: 100%;
+  height: 100%;
+  fill: url(#blobGradient);
+  filter: drop-shadow(var(--shadow-breath-circle));
+}
+
+.breath-blob-phase--inhale {
+  transform: scale(1.4);
+}
+
+.breath-blob-phase--hold_in {
+  transform: scale(1.4);
+}
+
+.breath-blob-phase--exhale {
+  transform: scale(1);
+}
+
+.breath-blob-phase--hold_out {
+  transform: scale(1);
+}
+
+.gradient-element {
+  transform-origin: 50px 50px;
   animation: rotate-glow 30s linear infinite;
+}
+
+.blob-path {
+  transition: d 0.5s ease-in-out;
+  animation: blob-morph 15s ease-in-out infinite alternate;
 }
 
 @keyframes rotate-glow {
@@ -751,61 +807,34 @@ onBeforeUnmount(() => {
   }
 }
 
-.breath-progress {
-  position: absolute;
-  inset: 0;
-  background: conic-gradient(
-    rgba(34, 197, 94, 0.85) calc(var(--phase-progress, 0) * 360deg),
-    rgba(15, 23, 42, 0.7) 0
-  );
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.breath-phase-label {
-  font-size: 1.5rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-  text-align: center;
-  margin-bottom: -20px;
-}
-
-.breath-timer-label {
-  font-variant-numeric: tabular-nums;
-  font-size: 1.4rem;
-  color: var(--color-primary-soft);
-}
-
-.breath-circle::after {
-  content: '';
-  position: absolute;
-  inset: 10%;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.breath-circle--inhale {
-  transform: scale(1.05);
-  box-shadow:
-    0 0 40px rgba(34, 197, 94, 0.5),
-    0 0 0 1px rgba(34, 197, 94, 0.4);
-}
-
-.breath-circle--hold_in {
-  transform: scale(1);
-  box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
-}
-
-.breath-circle--exhale {
-  transform: scale(0.95);
-  box-shadow: 0 0 25px rgba(248, 250, 252, 0.15);
-}
-
-.breath-circle--hold_out {
-  transform: scale(0.9);
-  box-shadow: 0 0 20px rgba(148, 163, 184, 0.6);
+@keyframes blob-morph {
+  0%,
+  100% {
+    d: path(
+      'M 74.27332230365087,0 C 74.83693175213968,30.599222038082097 65.27071194691645,45.41079158492555 36.46015705833725,63.15084447698112 C 7.649602169758058,80.8908973690367 -10.577819325757552,86.74792268746755 -40.968897250665904,70.96021156822228 C -71.35997517557425,55.172500448977 -85.22055812868366,35.27848902977774 -85.10415464129615,1.042225305756047e-14 C -84.98775115390863,-35.278489029777724 -70.3307517775354,-55.34223363205183 -40.50328330111585,-70.15374455088865 C -10.67581482469631,-84.96525546972546 5.511567863190329,-76.78447981306942 34.20571926438201,-59.246043675347266 C 62.899870665573694,-41.70760753762511 73.70971285516207,-30.599222038082097 74.27332230365087,0 Z'
+    );
+  }
+  70% {
+    /* The following shapes need to have the same amount of complexity (6) as the initial shape */
+    d: path(
+      'M 82.59530868685202,0 C 82.67239362978778,33.52074780281568 69.97982333359184,49.17325962155623 38.860595420657845,67.30852568095781 C 7.741367507723858,85.4437917403594 -11.514840783049358,89.36819565784579 -41.881602964883925,72.54106423760634 C -72.2483651467185,55.71393281736688 -83.41073621009681,34.87747326642693 -82.60645330668042,1.0116372863094146e-14 C -81.80217040326403,-34.87747326642692 -68.95414859011716,-50.27521244552514 -38.66447135121834,-66.96882882810137 C -8.37479411231952,-83.66244521067759 8.237310639397254,-83.51667273733023 38.552255648914844,-66.77446553030488 C 68.86720065843244,-50.032258323279535 82.51822374391627,-33.52074780281568 82.59530868685202,0 Z'
+    );
+  }
+  50% {
+    d: path(
+      'M 81.98002208199414,0 C 82.83853731927891,35.25307500959785 73.31785006282192,55.468417530971934 42.423775167676304,73.48013403929421 C 11.529700272530683,91.4918505476165 -12.51064993130531,90.41689954311266 -41.59627749858835,72.0468660332891 C -70.68190506587139,53.676832523465556 -75.3010550958798,33.629184553983904 -73.91873510145585,9.0524342339019e-15 C -72.5364151070319,-33.62918455398389 -64.29410985089078,-45.58683068287219 -36.066997520892514,-62.46987218264649 C -7.8398851908942575,-79.35291368242079 9.477959317815518,-83.1496340447588 38.98971421853718,-67.53216599909717 C 68.50146911925884,-51.91469795343555 81.12150684470936,-35.25307500959785 81.98002208199414,0 Z'
+    );
+  }
+  25% {
+    d: path(
+      'M 80,0 C 80.00000000000001,34.641016151377556 70,51.961524227066306 40.00000000000001,69.28203230275508 C 10.00000000000001,86.60254037844386 -9.999999999999986,86.60254037844386 -39.999999999999986,69.2820323027551 C -69.99999999999999,51.961524227066334 -79.99999999999999,34.64101615137755 -80,9.797174393178826e-15 C -80.00000000000001,-34.641016151377535 -70.00000000000003,-51.961524227066285 -40.000000000000036,-69.28203230275507 C -10.00000000000005,-86.60254037844385 9.999999999999936,-86.60254037844389 39.99999999999994,-69.28203230275513 C 69.99999999999994,-51.96152422706636 79.99999999999999,-34.641016151377556 80,0 Z'
+    );
+  }
+  15% {
+    d: path(
+      'M 83.26109978022953,0 C 85.75352956860078,35.51315223888474 77.10337769915358,61.82681523481526 45.99191558652703,79.66033453328376 C 14.880453473900474,97.49385383175226 -10.716667391319316,91.24916082719496 -41.18474867027669,71.33407719387402 C -71.65282994923406,51.41899356055309 -77.05253630625407,33.63685546634486 -75.88040952930247,9.292670064805059e-15 C -74.70828275235087,-33.63685546634485 -64.4718930530564,-47.61527606594159 -36.49624156247029,-63.2133446715054 C -8.520590071884172,-78.8114132770692 6.0828610973670365,-78.19561059013158 36.02219643304199,-62.39227442225523 C 65.96153176871695,-46.588938254378874 80.76866999185827,-35.51315223888474 83.26109978022953,0 Z'
+    );
+  }
 }
 
 .session-meta {

@@ -65,9 +65,15 @@ a {
   --color-danger-soft: #fecaca;
 
   /* Gradients */
+  --gradient-breath-start: #fdbb2d;
+  --gradient-breath-end: #22c1c3;
   --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-alt));
   --gradient-nav-pill-active: var(--gradient-primary);
-  --gradient-breath-circle: radial-gradient(circle at 20% 0, #fdbb2d, #22c1c3);
+  --gradient-breath-circle: radial-gradient(
+    circle at 20% 0,
+    var(--gradient-breath-start),
+    var(--gradient-breath-end)
+  );
 
   /* Subtle UI */
   --color-nav-link: #74787a;
@@ -77,6 +83,7 @@ a {
   --shadow-panel: 0 18px 60px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(15, 23, 42, 0.1);
   --shadow-primary: 0 12px 30px rgba(34, 197, 94, 0.35);
   --shadow-primary-hover: 0 18px 40px rgba(34, 197, 94, 0.5);
+  --shadow-breath-circle: 10px 20px 25px rgba(195, 195, 195, 0.2);
 }
 
 ::-webkit-scrollbar {
