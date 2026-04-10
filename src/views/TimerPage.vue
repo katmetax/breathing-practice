@@ -54,8 +54,9 @@
               Round {{ currentRound }} •
               {{ mode === 'rounds' ? `${rounds} total` : 'duration mode' }}
             </span>
-            <span v-else-if="sessionComplete">
-              Session complete —
+            <span v-else-if="sessionComplete" class="session-meta--completed">
+              <BreathIcon />
+              Session completed:
               {{ lastDurationDisplay }}
             </span>
             <span v-else class="muted">
@@ -63,8 +64,8 @@
             </span>
           </p>
 
-          <span v-if="selectedPreset" class="muted preset-name">
-            Preset: {{ selectedPreset.name }}
+          <span v-if="selectedPreset" class="preset-name" title="Selected preset">
+            <PresetIcon /> {{ selectedPreset.name }}
           </span>
 
           <button
@@ -183,6 +184,8 @@ import { audioController } from '../services/audioController'
 import { historyService } from '../services/historyService'
 import type { BreathPreset, SessionMode } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
+import BreathIcon from '~icons/material-symbols/air-rounded'
+import PresetIcon from '~icons/material-symbols/target'
 
 const saveSuccess = ref('')
 
@@ -679,22 +682,21 @@ onBeforeUnmount(() => {
 }
 
 .preset-name {
+  display: flex;
+  align-items: center;
   font-size: 0.9rem;
+  text-transform: uppercase;
+  color: var(--color-primary);
 }
 
-.preset-meta {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+.preset-name svg {
+  margin-right: 5px;
+  font-size: 17px;
 }
 
 .muted {
   color: var(--color-text-muted);
   font-size: 0.85rem;
-}
-
-.preset-name {
-  text-transform: uppercase;
-  color: var(--color-text-strong);
 }
 
 .mode-toggle {
@@ -840,5 +842,15 @@ onBeforeUnmount(() => {
 .session-meta {
   font-size: 0.85rem;
   color: var(--color-text-strong);
+}
+
+.session-meta--completed {
+  display: flex;
+  align-items: center;
+}
+
+.session-meta--completed svg {
+  font-size: 17px;
+  margin-right: 5px;
 }
 </style>
