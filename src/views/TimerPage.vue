@@ -180,9 +180,10 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
-import { audioController } from '../services/audioController'
+import playTone from '../services/audioController'
 import { historyService } from '../services/historyService'
 import type { BreathPreset, SessionMode } from '../types/breathing'
+import { BreathPhase, StartEndPhase } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import BreathIcon from '~icons/material-symbols/air-rounded'
 import PresetIcon from '~icons/material-symbols/target'
@@ -203,7 +204,7 @@ const isRunning = ref(false)
 const sessionComplete = ref(false)
 const isCountingDown = ref(false)
 const countdownRemaining = ref(0)
-const currentPhase = ref<'inhale' | 'hold_in' | 'exhale' | 'hold_out' | ''>('')
+const currentPhase = ref<BreathPhase | ''>('')
 const currentRound = ref(1)
 const elapsedTotal = ref(0)
 const elapsedPhase = ref(0)
@@ -224,13 +225,13 @@ const canStart = computed(() => {
 
 const phaseLabel = computed(() => {
   switch (currentPhase.value) {
-    case 'inhale':
+    case BreathPhase.INHALE:
       return 'Inhale'
-    case 'hold_in':
+    case BreathPhase.HOLD_IN:
       return 'Hold'
-    case 'exhale':
+    case BreathPhase.EXHALE:
       return 'Exhale'
-    case 'hold_out':
+    case BreathPhase.HOLD_OUT:
       return 'Hold'
     default:
       return ''
@@ -319,7 +320,7 @@ function beginSession(
     },
     {
       onPhaseChange(state) {
-        currentPhase.value = state.currentPhase ?? 'inhale'
+        currentPhase.value = state.currentPhase ?? BreathPhase.INHALE
         currentRound.value = state.currentRound
         elapsedPhase.value = state.currentPhaseElapsed
         elapsedTotal.value = state.totalElapsed
@@ -327,7 +328,7 @@ function beginSession(
         if (nextPhaseConfig) {
           currentPhaseDuration.value = nextPhaseConfig.durationSec
         }
-        audioController.playPhaseTone()
+        playTone(currentPhase.value)
       },
       onTick(state) {
         elapsedPhase.value = state.currentPhaseElapsed
@@ -338,7 +339,7 @@ function beginSession(
         sessionComplete.value = true
         currentPhase.value = ''
         lastDurationSec.value = Math.round(state.totalElapsed)
-        audioController.playCompletionTone()
+        playTone(StartEndPhase.END)
 
         historyService.add({
           presetId: preset.id,
@@ -351,7 +352,7 @@ function beginSession(
 
   timerEngine.start()
   isRunning.value = true
-  audioController.playPhaseTone()
+  // playTone(StartEndPhase.START)
 }
 
 function handleStart() {
@@ -378,10 +379,10 @@ function handleStart() {
   }
 
   const phases = [
-    { phase: 'inhale' as const, durationSec: preset.inhaleSec },
-    { phase: 'hold_in' as const, durationSec: preset.holdInSec },
-    { phase: 'exhale' as const, durationSec: preset.exhaleSec },
-    { phase: 'hold_out' as const, durationSec: preset.holdOutSec },
+    { phase: BreathPhase.INHALE as const, durationSec: preset.inhaleSec },
+    { phase: BreathPhase.HOLD_IN as const, durationSec: preset.holdInSec },
+    { phase: BreathPhase.EXHALE as const, durationSec: preset.exhaleSec },
+    { phase: BreathPhase.HOLD_OUT as const, durationSec: preset.holdOutSec },
   ].filter((p) => p.durationSec > 0)
 
   if (phases.length === 0) {

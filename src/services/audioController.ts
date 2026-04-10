@@ -1,65 +1,44 @@
-/**
- * Simple audio controller built on the Web Audio API.
- *
- * Uses short oscillator beeps with different frequencies to distinguish:
- * - Phase transition tones
- * - Final completion tone
- *
- * This keeps latency low compared to playing pre-recorded audio files.
- */
-class AudioController {
-  private audioCtx: AudioContext | null = null;
+import { BreathPhase, StartEndPhase } from '@/types/breathing'
 
-  private ensureContext() {
-    if (this.audioCtx) return;
-    try {
-      this.audioCtx = new AudioContext();
-    } catch {
-      // In case the browser does not support AudioContext, we fail silently.
-      this.audioCtx = null;
-    }
-  }
+const useAudio = (source: string) => {
+  const audio = new Audio(source)
 
-  /**
-   * Plays a short tone for a phase transition.
-   * A slightly softer envelope is used to avoid startling users.
-   */
-  playPhaseTone() {
-    this.playTone(440, 0.15);
-  }
+  if (!audio) return
 
-  /**
-   * Plays a distinct tone to signal session completion.
-   */
-  playCompletionTone() {
-    this.playTone(660, 0.4);
-  }
+  // Reset the playhead in case it's clicked rapidly
+  audio.currentTime = 0
 
-  private playTone(frequency: number, durationSec: number) {
-    this.ensureContext();
-    if (!this.audioCtx) return;
+  audio.play().catch((err) => {
+    console.error('Audio playback failed:', err)
+  })
+}
 
-    const ctx = this.audioCtx;
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
+const playCountdownTone = () => useAudio('')
+const playInhaleTone = () =>
+  useAudio('assets/sounds/577856__iainmccurdy__tibetan-singing-bowl-10-cm-struck.mp3')
+const playExhaleTone = () => useAudio('assets/sounds/531268__asuriya__aud-7-chakra-5-bowl.mp3')
+const playHoldTone = () =>
+  useAudio('assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3')
+const playEndOfSessionTone = () =>
+  useAudio('assets/sounds/242394__ascap__wood-hit-low-glass-bowl-5.mp3')
 
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-
-    oscillator.connect(gain);
-    gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
-
-    // Smooth ramp to avoid clicks.
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.01);
-    gain.gain.linearRampToValueAtTime(0.0, now + durationSec);
-
-    oscillator.start(now);
-    oscillator.stop(now + durationSec + 0.05);
+const playTone = (phase: BreathPhase | StartEndPhase) => {
+  switch (phase) {
+    case BreathPhase.INHALE:
+      return playInhaleTone()
+    case BreathPhase.HOLD_IN:
+      return playHoldTone()
+    case BreathPhase.EXHALE:
+      return playExhaleTone()
+    case BreathPhase.HOLD_OUT:
+      return playHoldTone()
+    case StartEndPhase.START:
+      return playCountdownTone()
+    case StartEndPhase.END:
+      return playEndOfSessionTone()
+    default:
+      return ''
   }
 }
 
-export const audioController = new AudioController();
-
+export default playTone
