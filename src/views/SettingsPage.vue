@@ -128,7 +128,7 @@
                   </button>
                   <div v-else class="preset-delete-confirm">
                     <button
-                      class="preset-delete-confirm-btn"
+                      class="preset-delete-confirm-btn btn btn-secondary btn-secondary--compact"
                       type="button"
                       @click="handleDeletePreset(preset.id)"
                     >
@@ -317,23 +317,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.timer-page {
-  width: 100%;
-  max-width: 1100px;
-}
-
-.timer-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 1.5rem;
-}
-
-@media (max-width: 900px) {
-  .timer-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 .panel {
   border-radius: 1.2rem;
   padding: 1.5rem;
@@ -545,7 +528,6 @@ onBeforeUnmount(() => {
   background: rgba(248, 113, 113, 0.1);
   border-color: rgba(248, 113, 113, 1);
   border-radius: 0.75rem;
-  color: #fee2e2;
 }
 
 .preset-delete-button:disabled {
@@ -559,7 +541,10 @@ onBeforeUnmount(() => {
   gap: 0.25rem;
 }
 
-.preset-delete-confirm-btn,
+.preset-delete-confirm-btn {
+  margin: 0;
+}
+
 .preset-delete-cancel-btn {
   border-radius: 0.6rem;
   padding: 0.25rem 0.5rem;
@@ -574,9 +559,13 @@ onBeforeUnmount(() => {
     color 120ms ease;
 }
 
-.preset-delete-confirm-btn:hover,
+.preset-delete-confirm-btn:hover {
+  background: var(--color-danger);
+}
+
 .preset-delete-cancel-btn:hover {
-  background: rgba(30, 64, 175, 0.4);
+  color: white;
+  background: #bfbfbf;
 }
 
 .preset-name {
@@ -591,103 +580,5 @@ onBeforeUnmount(() => {
 .muted {
   color: var(--color-text-muted);
   font-size: 0.85rem;
-}
-
-.mode-toggle {
-  display: inline-flex;
-  padding: 0.2rem;
-  border-radius: 999px;
-  background: var(--color-surface-soft);
-  border: 1px solid var(--color-border-strong);
-  margin-bottom: 0.6rem;
-}
-
-.mode-pill {
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.mode-pill--active {
-  background: var(--gradient-primary);
-  color: var(--color-text-on-primary);
-}
-
-.session-visual {
-  margin-top: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.breath-circle {
-  width: 230px;
-  height: 230px;
-  border-radius: 999px;
-  background: var(--gradient-breath-circle);
-  border: 1px solid var(--color-border-strong);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  position: relative;
-  overflow: hidden;
-  transition:
-    background-color 200ms ease,
-    transform 500ms ease;
-}
-
-.breath-phase-label {
-  font-size: 1.1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.breath-timer-label {
-  font-variant-numeric: tabular-nums;
-  font-size: 1.4rem;
-  color: var(--color-primary-soft);
-}
-
-.breath-circle::after {
-  content: '';
-  position: absolute;
-  inset: 10%;
-  border-radius: inherit;
-  border: 2px solid var(--color-border-subtle);
-  pointer-events: none;
-}
-
-.breath-circle--inhale {
-  transform: scale(1.05);
-  box-shadow:
-    0 0 40px rgba(34, 197, 94, 0.5),
-    0 0 0 1px rgba(34, 197, 94, 0.4);
-}
-
-.breath-circle--hold_in {
-  transform: scale(1);
-  box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
-}
-
-.breath-circle--exhale {
-  transform: scale(0.95);
-  box-shadow: 0 0 25px rgba(248, 250, 252, 0.15);
-}
-
-.breath-circle--hold_out {
-  transform: scale(0.9);
-  box-shadow: 0 0 20px rgba(148, 163, 184, 0.6);
-}
-
-.session-meta {
-  font-size: 0.85rem;
-  color: var(--color-text-strong);
 }
 </style>
