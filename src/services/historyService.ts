@@ -57,30 +57,6 @@ class HistoryService {
     }
     this.sessions.push(fullRecord)
     this.persist()
-
-    // Simulate a lightweight POST to a backend endpoint.
-    // In a full implementation this would use fetch() and handle failures.
-    void this.postToBackend(fullRecord)
-  }
-
-  private async postToBackend(record: BreathSessionRecord) {
-    // Placeholder implementation, intentionally silent on failure.
-    try {
-      await fetch('/api/breath_sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          preset_id: record.presetId,
-          preset_name: record.presetName ?? null,
-          duration_seconds: record.durationSeconds,
-          completed_at: record.completedAt,
-        }),
-      })
-    } catch {
-      // Ignore network errors; local history is the primary source.
-    }
   }
 }
 
