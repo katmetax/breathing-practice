@@ -1,15 +1,35 @@
 import { BreathPhase, StartEndPhase } from '@/types/breathing'
 
+let currentAudio: HTMLAudioElement | null = null
+
+const stopTone = () => {
+  if (!currentAudio) return
+  currentAudio.pause()
+  currentAudio.currentTime = 0
+  currentAudio = null
+}
+
 const useAudio = (source: string) => {
+  stopTone()
   const audio = new Audio(source)
 
   if (!audio) return
 
   // Reset the playhead in case it's clicked rapidly
   audio.currentTime = 0
+  currentAudio = audio
+
+  audio.onended = () => {
+    if (currentAudio === audio) {
+      currentAudio = null
+    }
+  }
 
   audio.play().catch((err) => {
     console.error('Audio playback failed:', err)
+    if (currentAudio === audio) {
+      currentAudio = null
+    }
   })
 }
 
@@ -41,4 +61,4 @@ const playTone = (phase: BreathPhase | StartEndPhase) => {
   }
 }
 
-export default playTone
+export { playTone, stopTone }

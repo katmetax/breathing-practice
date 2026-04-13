@@ -180,7 +180,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
-import playTone from '../services/audioController'
+import { playTone, stopTone } from '../services/audioController'
 import { historyService } from '../services/historyService'
 import type { BreathPreset, SessionMode } from '../types/breathing'
 import { BreathPhase, StartEndPhase } from '../types/breathing'
@@ -408,6 +408,7 @@ function handleStart() {
 function handleStop() {
   cancelCountdown()
   timerEngine.stop()
+  stopTone()
   isRunning.value = false
   sessionComplete.value = false
   lastDurationSec.value = null
@@ -421,6 +422,7 @@ function handleStop() {
 onBeforeUnmount(() => {
   cancelCountdown()
   timerEngine.stop()
+  stopTone()
 })
 </script>
 
