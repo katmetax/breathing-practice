@@ -1,7 +1,9 @@
 <template>
   <div class="app-root">
     <header class="app-header">
-      <h1 class="app-title">Breathing Practice</h1>
+      <h1 class="app-title">
+        <a href="/" class="app-title-link" @click.prevent="router.push('/')">Breathing Practice</a>
+      </h1>
       <nav class="app-nav">
         <a
           class="nav-link"
@@ -72,6 +74,11 @@ const onSettingsClick = () => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-text-strong);
+}
+
+.app-title-link {
+  color: inherit;
+  text-decoration: none;
 }
 
 .app-nav {
