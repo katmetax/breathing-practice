@@ -48,18 +48,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { historyService } from '../services/historyService'
-import { presetManager } from '../services/presetManager'
 import BreathIcon from '~icons/material-symbols/air-rounded'
 
 const sessions = computed(() => historyService.listRecent(50))
 const totalNumberOfSessions = computed(() => historyService.listAll()?.length)
 
-function sessionLabel(session: { presetId: string | null; presetName?: string | null }): string {
-  if (!session.presetId) return 'Custom session'
-  if (session.presetName) return session.presetName
-  const preset = presetManager.getById(session.presetId)
-  return preset?.name ?? 'Preset-based session'
-}
+const sessionLabel = (session: { presetName?: string }) => session.presetName ?? 'Session'
 
 function formatDate(iso: string): string {
   const date = new Date(iso)
