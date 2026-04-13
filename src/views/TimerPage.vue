@@ -294,7 +294,7 @@ function cancelCountdown() {
 
 function beginSession(
   preset: BreathPreset,
-  phases: { phase: BreathPreset['phaseOrder'][number]; durationSec: number }[],
+  phases: { phase: BreathPhase; durationSec: number }[],
   totalDurationSec: number | undefined,
 ) {
   const firstPhase = phases[0]
