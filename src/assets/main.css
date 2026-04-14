@@ -111,8 +111,8 @@ a {
     --color-text-main: #dae2ee;
     --color-text-strong: #80d4e2;
     --color-text-muted: #9fb0c8;
-    --color-text-soft: #ffffff;
-    --color-text-on-primary: #ffffff;
+    --color-text-soft: #0a101c;
+    --color-text-on-primary: #0a101c;
     --color-text-success-soft: #bbf7d0;
     --color-text-danger-soft: #fecaca;
     --color-success-soft: #86efac;
@@ -232,8 +232,8 @@ a {
   --color-text-main: #dae2ee;
   --color-text-strong: #80d4e2;
   --color-text-muted: #9fb0c8;
-  --color-text-soft: #ffffff;
-  --color-text-on-primary: #ffffff;
+  --color-text-soft: #0a101c;
+  --color-text-on-primary: #0a101c;
   --color-text-success-soft: #bbf7d0;
   --color-text-danger-soft: #fecaca;
   --color-success-soft: #86efac;
@@ -329,7 +329,7 @@ a {
 .btn-ghost {
   margin-top: 0.5rem;
   background: transparent;
-  color: var(--color-text-soft);
+  color: var(--color-text-muted);
   border: 1px solid var(--color-border-strong);
 }
 
