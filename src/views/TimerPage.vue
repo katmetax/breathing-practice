@@ -64,7 +64,14 @@
             </span>
           </p>
 
-          <span v-if="selectedPreset" class="preset-name" title="Selected preset">
+          <span
+            v-if="selectedPreset"
+            :class="{
+              'preset-name': true,
+              'session--active': isRunning || isCountingDown,
+            }"
+            title="Selected preset"
+          >
             <PresetIcon /> {{ selectedPreset.name }}
           </span>
 
@@ -469,6 +476,12 @@ onBeforeUnmount(() => {
   width: 50%;
 }
 
+@media screen and (max-width: 720px) {
+  .session-settings {
+    width: 100%;
+  }
+}
+
 .btn-primary {
   display: flex;
   justify-self: center;
@@ -576,7 +589,7 @@ onBeforeUnmount(() => {
   margin-bottom: 0.75rem;
 }
 
-@media (max-width: 600px) {
+@media screen and (max-width: 600px) {
   .grid-2 {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -684,6 +697,18 @@ onBeforeUnmount(() => {
   color: var(--color-primary);
 }
 
+@media screen and (max-width: 490px) {
+  .preset-name {
+    align-self: flex-end;
+    margin-right: 15px;
+  }
+
+  .preset-name.session--active {
+    align-self: center;
+    margin-right: 0;
+  }
+}
+
 .preset-name svg {
   margin-right: 5px;
   font-size: 17px;
@@ -743,6 +768,13 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+}
+
+@media screen and (max-width: 490px) {
+  .session-visual {
+    margin: -1rem 0 0;
+    gap: 1rem;
+  }
 }
 
 .breath-phase-label {
@@ -837,6 +869,12 @@ onBeforeUnmount(() => {
 .session-meta {
   font-size: 0.85rem;
   color: var(--color-text-strong);
+}
+
+@media screen and (max-width: 490px) {
+  .session-meta {
+    margin: 0 0 1rem;
+  }
 }
 
 .session-meta--completed {

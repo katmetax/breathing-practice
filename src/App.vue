@@ -94,6 +94,12 @@ const onThemeClick = () => {
     sans-serif;
 }
 
+@media screen and (max-width: 490px) {
+  .app-root {
+    min-height: auto;
+  }
+}
+
 .app-header {
   padding: 1.25rem 1.5rem;
   display: flex;
@@ -107,6 +113,7 @@ const onThemeClick = () => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-text-strong);
+  max-width: 220px;
 }
 
 .app-title-link {

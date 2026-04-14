@@ -102,6 +102,16 @@ function formatDuration(seconds: number): string {
   box-shadow: var(--shadow-panel);
 }
 
+@media screen and (max-width: 720px) {
+  .history-panel {
+    padding: 0;
+  }
+
+  .glass-panel {
+    min-width: 200px;
+  }
+}
+
 .history-titles {
   flex: 1;
 }

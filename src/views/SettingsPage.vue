@@ -337,6 +337,20 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-panel);
 }
 
+@media screen and (max-width: 720px) {
+  .settings-page {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 0;
+  }
+
+  .glass-panel {
+    min-width: 200px;
+  }
+}
+
 .panel-title {
   font-size: 1.05rem;
   letter-spacing: 0.04em;
