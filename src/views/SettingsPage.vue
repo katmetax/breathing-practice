@@ -564,8 +564,8 @@ onBeforeUnmount(() => {
 }
 
 .preset-delete-cancel-btn:hover {
-  color: white;
-  background: #bfbfbf;
+  color: var(--color-text-on-primary);
+  background: var(--color-text-muted);
 }
 
 .preset-name {

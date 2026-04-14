@@ -165,10 +165,10 @@ function formatDuration(seconds: number): string {
   display: flex;
   position: relative;
   z-index: 2;
-  color: var(--color-text-strong);
+  color: var(--color-text-soft);
   font-weight: 900;
   font-size: 17px;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  text-shadow: var(--shadow-text);
 }
 
 /* The colorful glow moving behind the glass */
@@ -218,7 +218,7 @@ function formatDuration(seconds: number): string {
 
 .session-duration {
   font-size: 0.9rem;
-  color: var(--color-success-soft);
+  color: var(--color-text-main);
   font-variant-numeric: tabular-nums;
 }
 

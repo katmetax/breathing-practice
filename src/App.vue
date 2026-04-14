@@ -19,6 +19,17 @@
         >
           <HistoryIcon />
         </a>
+        <button
+          class="nav-link nav-link--button"
+          type="button"
+          :aria-label="themeButtonLabel"
+          :title="themeButtonLabel"
+          @click="onThemeClick"
+        >
+          <AutoModeIcon v-if="preference === 'system'" />
+          <LightModeIcon v-else-if="preference === 'light'" />
+          <DarkModeIcon v-else />
+        </button>
       </nav>
     </header>
 
@@ -29,12 +40,30 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useThemeStore } from './stores/theme'
+import AutoModeIcon from '~icons/material-symbols/brightness-4-rounded'
+import DarkModeIcon from '~icons/material-symbols/dark-mode-outline-rounded'
+import LightModeIcon from '~icons/material-symbols/light-mode-outline-rounded'
 import HistoryIcon from '~icons/material-symbols/history-rounded'
 import SettingsIcon from '~icons/material-symbols/settings-outline-rounded'
-import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
+const themeStore = useThemeStore()
+const { preference, resolvedTheme } = storeToRefs(themeStore)
+
+const themeButtonLabel = computed(() => {
+  if (preference.value === 'system') {
+    return `Theme: System (${resolvedTheme.value}). Click to switch to Light.`
+  }
+  if (preference.value === 'light') {
+    return 'Theme: Light. Click to switch to Dark.'
+  }
+  return 'Theme: Dark. Click to switch to System.'
+})
 
 const onHistoryClick = () => {
   router.push(route.path === '/history' ? '/' : '/history')
@@ -42,6 +71,10 @@ const onHistoryClick = () => {
 
 const onSettingsClick = () => {
   router.push(route.path === '/settings' ? '/' : '/settings')
+}
+
+const onThemeClick = () => {
+  themeStore.cycleThemePreference()
 }
 </script>
 
@@ -98,6 +131,13 @@ const onSettingsClick = () => {
     background-color 160ms ease,
     color 160ms ease,
     border-color 160ms ease;
+}
+
+.nav-link--button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
 }
 
 .nav-link:hover {

@@ -452,14 +452,6 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-panel);
 }
 
-.panel-title {
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-soft);
-  margin-bottom: 1rem;
-}
-
 .form {
   display: flex;
   flex-direction: column;
