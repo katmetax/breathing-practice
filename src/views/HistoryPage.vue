@@ -46,12 +46,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { historyService } from '../services/historyService'
 import BreathIcon from '~icons/material-symbols/air-rounded'
 
-const sessions = computed(() => historyService.listRecent(50))
-const totalNumberOfSessions = computed(() => historyService.listAll()?.length)
+const route = useRoute()
+const sessionItems = ref(historyService.listRecent(50))
+
+const reloadSessions = () => {
+  sessionItems.value = historyService.listRecent(50)
+}
+
+onMounted(reloadSessions)
+watch(() => route.path, reloadSessions)
+
+const sessions = computed(() => sessionItems.value)
+const totalNumberOfSessions = computed(() => sessionItems.value.length)
 
 const sessionLabel = (session: { presetName?: string }) => session.presetName ?? 'Session'
 

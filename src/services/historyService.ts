@@ -1,4 +1,5 @@
 import type { BreathSessionRecord } from '../types/breathing'
+import { createId } from '../utils/createId'
 
 const HISTORY_KEY = 'breathing_sessions_v1'
 
@@ -51,7 +52,7 @@ class HistoryService {
   add(record: Omit<BreathSessionRecord, 'id' | 'completedAt'>) {
     this.ensureLoaded()
     const fullRecord: BreathSessionRecord = {
-      id: crypto.randomUUID(),
+      id: createId("session_"),
       completedAt: new Date().toISOString(),
       ...record,
     }

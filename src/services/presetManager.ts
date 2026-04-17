@@ -1,4 +1,5 @@
 import type { BreathPreset } from '../types/breathing';
+import { createId } from '../utils/createId';
 
 const STORAGE_KEY = 'breathing_presets_v1';
 
@@ -60,7 +61,7 @@ class PresetManager {
 
   create(preset: Omit<BreathPreset, 'id'>): BreathPreset {
     this.ensureLoaded();
-    const id = `preset_${crypto.randomUUID()}`;
+    const id = createId('preset_');
     const record: BreathPreset = { ...preset, id };
     this.presets.push(record);
     this.persist();
