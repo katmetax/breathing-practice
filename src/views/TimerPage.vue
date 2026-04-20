@@ -792,6 +792,7 @@ onBeforeUnmount(() => {
   align-items: center;
   width: 300px;
   height: 300px;
+  overflow: hidden;
 }
 
 .breath-blob-svg {
@@ -802,19 +803,19 @@ onBeforeUnmount(() => {
 }
 
 .breath-blob-phase--inhale {
-  transform: scale(1.4);
+  transform: scale(1.3);
 }
 
 .breath-blob-phase--hold_in {
-  transform: scale(1.4);
+  transform: scale(1.3);
 }
 
 .breath-blob-phase--exhale {
-  transform: scale(1);
+  transform: scale(0.8);
 }
 
 .breath-blob-phase--hold_out {
-  transform: scale(1);
+  transform: scale(0.8);
 }
 
 .gradient-element {
