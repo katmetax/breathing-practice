@@ -400,11 +400,19 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+  align-items: end;
 }
 
-@media (max-width: 600px) {
-  .grid-2 {
-    grid-template-columns: minmax(0, 1fr);
+.grid-2 .field-label {
+  /* Keep a consistent label height so neighboring inputs align vertically. */
+  min-height: 2.4em;
+  display: flex;
+  align-items: flex-end;
+}
+
+@media (max-width: 420px) {
+  .grid-2 .field-label {
+    min-height: 2.8em;
   }
 }
 
