@@ -17,18 +17,26 @@
                   min="1"
                   max="60"
                   step="0.1"
+                  inputmode="decimal"
+                  @beforeinput="handleDurationBeforeInput"
+                  @paste="handleDurationPaste($event, BreathPhase.INHALE)"
+                  @blur="handleDurationBlur(BreathPhase.INHALE)"
                   required
                 />
               </label>
               <label class="field">
                 <span class="field-label">Hold (after inhale)</span>
                 <input
-                  v-model.number="holdIn"
+                  v-model.number="hold_in"
                   class="field-input"
                   type="number"
                   min="0"
                   max="60"
                   step="0.1"
+                  inputmode="decimal"
+                  @beforeinput="handleDurationBeforeInput"
+                  @paste="handleDurationPaste($event, BreathPhase.HOLD_IN)"
+                  @blur="handleDurationBlur(BreathPhase.HOLD_IN)"
                   required
                 />
               </label>
@@ -41,18 +49,26 @@
                   min="1"
                   max="60"
                   step="0.1"
+                  inputmode="decimal"
+                  @beforeinput="handleDurationBeforeInput"
+                  @paste="handleDurationPaste($event, BreathPhase.EXHALE)"
+                  @blur="handleDurationBlur(BreathPhase.EXHALE)"
                   required
                 />
               </label>
               <label class="field">
                 <span class="field-label">Hold (after exhale)</span>
                 <input
-                  v-model.number="holdOut"
+                  v-model.number="hold_out"
                   class="field-input"
                   type="number"
                   min="0"
                   max="60"
                   step="0.1"
+                  inputmode="decimal"
+                  @beforeinput="handleDurationBeforeInput"
+                  @paste="handleDurationPaste($event, BreathPhase.HOLD_OUT)"
+                  @blur="handleDurationBlur(BreathPhase.HOLD_OUT)"
                   required
                 />
               </label>
@@ -157,14 +173,14 @@ import { onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
-import type { BreathPreset } from '../types/breathing'
+import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 
 const inhale = ref(4)
-const holdIn = ref(4)
+const hold_in = ref(4)
 const exhale = ref(4)
-const holdOut = ref(4)
+const hold_out = ref(4)
 const presetName = ref('Box Breath')
 
 const saveError = ref('')
@@ -175,6 +191,20 @@ const pendingDeleteId = ref<string | null>(null)
 const presets = ref<BreathPreset[]>(presetManager.list())
 const sessionConfigStore = useSessionConfigStore()
 const { selectedPresetId } = storeToRefs(sessionConfigStore)
+const MAX_PRESET_NAME_LENGTH = 40
+const DURATION_MIN_BY_FIELD: Record<BreathPhase, number> = {
+  inhale: 1,
+  hold_in: 0,
+  exhale: 1,
+  hold_out: 0,
+}
+
+const durationRefs: Record<BreathPhase, typeof inhale> = {
+  inhale,
+  hold_in,
+  exhale,
+  hold_out,
+}
 
 function formatSeconds(value: number): string {
   if (Number.isNaN(value)) return '0'
@@ -184,9 +214,9 @@ function formatSeconds(value: number): string {
 
 function resetFormToDefaults() {
   inhale.value = 4
-  holdIn.value = 4
+  hold_in.value = 4
   exhale.value = 4
-  holdOut.value = 4
+  hold_out.value = 4
   presetName.value = ''
 }
 
@@ -195,10 +225,73 @@ function loadPresetIntoForm(id: string | null) {
   const preset = presets.value.find((p) => p.id === id)
   if (!preset) return
   inhale.value = preset.inhaleSec
-  holdIn.value = preset.holdInSec
+  hold_in.value = preset.holdInSec
   exhale.value = preset.exhaleSec
-  holdOut.value = preset.holdOutSec
+  hold_out.value = preset.holdOutSec
   presetName.value = preset.name
+}
+
+function normalizeDuration(value: number, field: BreathPhase): number {
+  const min = DURATION_MIN_BY_FIELD[field]
+  if (!Number.isFinite(value)) return min
+  if (value < min) return min
+  if (value > 60) return 60
+  return Math.round(value * 10) / 10
+}
+
+function parseDurationText(raw: string, field: BreathPhase): number | null {
+  const cleaned = raw.replace(',', '.').trim()
+  if (!cleaned) return null
+  if (!/^\d+(\.\d+)?$/.test(cleaned)) return null
+  const parsed = Number(cleaned)
+  if (!Number.isFinite(parsed)) return null
+  return normalizeDuration(parsed, field)
+}
+
+function setDurationValue(field: BreathPhase, value: number): void {
+  durationRefs[field].value = normalizeDuration(value, field)
+}
+
+function handleDurationBeforeInput(event: InputEvent): void {
+  if (event.inputType.startsWith('delete')) return
+  const text = event.data ?? ''
+  if (!text) return
+  if (!/^[\d.,]+$/.test(text)) {
+    event.preventDefault()
+  }
+}
+
+function handleDurationPaste(event: ClipboardEvent, field: BreathPhase): void {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  const parsed = parseDurationText(pasted, field)
+  if (parsed === null) {
+    event.preventDefault()
+    return
+  }
+  event.preventDefault()
+  setDurationValue(field, parsed)
+}
+
+function handleDurationBlur(field: BreathPhase): void {
+  setDurationValue(field, durationRefs[field].value)
+}
+
+function containsControlCharacters(raw: string): boolean {
+  for (const char of raw) {
+    const code = char.charCodeAt(0)
+    if (code <= 0x1f || code === 0x7f) return true
+  }
+  return false
+}
+
+function sanitizePresetName(raw: string): string {
+  let withoutControlChars = ''
+  for (const char of raw) {
+    const code = char.charCodeAt(0)
+    if (code <= 0x1f || code === 0x7f) continue
+    withoutControlChars += char
+  }
+  return withoutControlChars.trim().slice(0, MAX_PRESET_NAME_LENGTH)
 }
 
 watch(
@@ -267,21 +360,34 @@ function handleSavePreset() {
   saveError.value = ''
   saveSuccess.value = ''
 
-  if (!presetName.value.trim()) {
+  const normalizedName = sanitizePresetName(presetName.value)
+  if (!normalizedName) {
     saveError.value = 'Please provide a name for the preset.'
     return
   }
-
-  const values = [inhale.value, exhale.value]
-  if (values.some((v) => !Number.isFinite(v) || v <= 0)) {
-    saveError.value = 'Inhale and exhale must be positive seconds.'
+  if (containsControlCharacters(presetName.value)) {
+    saveError.value = 'Preset name contains invalid characters.'
     return
   }
 
-  const normalizeDuration = (value: number) => {
-    if (!Number.isFinite(value) || value < 0) return 0
-    return Math.round(value * 10) / 10
+  const DURATION_FIELD_KEYS = Object.values(BreathPhase)
+  const durations = DURATION_FIELD_KEYS.map((key) => ({
+    key,
+    value: normalizeDuration(durationRefs[key].value, key),
+  }))
+  if (
+    durations.some(
+      ({ key, value }) =>
+        !Number.isFinite(value) || value < DURATION_MIN_BY_FIELD[key] || value > 60,
+    )
+  ) {
+    saveError.value = 'Inhale/exhale must be 1-60 seconds; holds must be 0-60 seconds.'
+    return
   }
+  DURATION_FIELD_KEYS.forEach((key) => {
+    setDurationValue(key, durationRefs[key].value)
+  })
+  presetName.value = normalizedName
 
   const targetId = selectedPresetId.value
   const base =
@@ -290,11 +396,11 @@ function handleSavePreset() {
       : null
 
   const payload: Omit<BreathPreset, 'id'> = {
-    name: presetName.value.trim(),
-    inhaleSec: normalizeDuration(inhale.value),
-    holdInSec: normalizeDuration(holdIn.value),
-    exhaleSec: normalizeDuration(exhale.value),
-    holdOutSec: normalizeDuration(holdOut.value),
+    name: normalizedName,
+    inhaleSec: normalizeDuration(inhale.value, BreathPhase.INHALE),
+    holdInSec: normalizeDuration(hold_in.value, BreathPhase.HOLD_IN),
+    exhaleSec: normalizeDuration(exhale.value, BreathPhase.EXHALE),
+    holdOutSec: normalizeDuration(hold_out.value, BreathPhase.HOLD_OUT),
     isDefault: base?.isDefault ?? false,
   }
 
