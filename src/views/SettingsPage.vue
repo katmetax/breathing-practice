@@ -4,7 +4,7 @@
       <div class="glass-panel">
         <h2 class="panel-title">Configure Session</h2>
 
-        <form class="form" @submit.prevent="handleSavePreset">
+        <form v-if="showPresetSettings" class="form" @submit.prevent="handleSavePreset">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
             <div class="grid-2">
@@ -93,13 +93,16 @@
             <p v-if="saveError" class="field-error">
               {{ saveError }}
             </p>
-            <p v-if="saveSuccess" class="field-success">
-              {{ saveSuccess }}
-            </p>
           </fieldset>
         </form>
-
+        <span v-else class="muted"
+          >Select a preset from the list below for your breathing practice.</span
+        >
         <section class="presets-section">
+          <p v-if="saveSuccess" class="field-success">
+            {{ saveSuccess }}
+          </p>
+
           <div class="presets-header">
             <h3 class="section-title">Preset Library</h3>
             <button
@@ -131,6 +134,16 @@
                     {{ formatSeconds(preset.holdOutSec) }} sec
                   </span>
                 </button>
+
+                <div class="preset-edit-container">
+                  <button
+                    class="preset-edit-button"
+                    type="button"
+                    @click="handleEditPreset(preset.id)"
+                  >
+                    <EditIcon />
+                  </button>
+                </div>
 
                 <div class="preset-delete-container">
                   <button
@@ -176,6 +189,7 @@ import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
+import EditIcon from '~icons/material-symbols/edit-rounded'
 
 const inhale = ref(4)
 const hold_in = ref(4)
@@ -186,7 +200,10 @@ const presetName = ref('Box Breath')
 const saveError = ref('')
 const saveSuccess = ref('')
 
+const editPresetId = ref<string | null>(null)
 const pendingDeleteId = ref<string | null>(null)
+
+const showPresetSettings = ref<boolean>(false)
 
 const presets = ref<BreathPreset[]>(presetManager.list())
 const sessionConfigStore = useSessionConfigStore()
@@ -323,7 +340,14 @@ watch(selectedPresetId, (next) => {
 function handleSelectPreset(id: string) {
   sessionConfigStore.setSelectedPresetId(id)
   pendingDeleteId.value = null
+  saveSuccess.value = ''
   loadPresetIntoForm(id)
+}
+
+const handleEditPreset = (id: string) => {
+  editPresetId.value = id
+  handleSelectPreset(id)
+  showPresetSettings.value = !showPresetSettings.value
 }
 
 function handleDeletePreset(id: string) {
@@ -341,6 +365,8 @@ function handleDeletePreset(id: string) {
     sessionConfigStore.setSelectedPresetId(nextId)
     if (nextId) {
       loadPresetIntoForm(nextId)
+      showPresetSettings.value = false
+      saveSuccess.value = ''
     }
   } else if (!presets.value.length) {
     // No presets left; clear form for creating a new one.
@@ -353,6 +379,7 @@ function handleNewPreset() {
   pendingDeleteId.value = null
   saveError.value = ''
   saveSuccess.value = ''
+  showPresetSettings.value = true
   resetFormToDefaults()
 }
 
@@ -409,11 +436,13 @@ function handleSavePreset() {
     reloadPresets()
     sessionConfigStore.setSelectedPresetId(updated.id)
     saveSuccess.value = `"${updated.name}" updated.`
+    showPresetSettings.value = false
   } else {
     const created = presetManager.create(payload)
     reloadPresets()
     sessionConfigStore.setSelectedPresetId(created.id)
     saveSuccess.value = `"${created.name}" saved to your presets.`
+    showPresetSettings.value = false
   }
 }
 
@@ -584,6 +613,7 @@ onBeforeUnmount(() => {
   padding-inline: 0.8rem;
   padding-block: 0.3rem;
   font-size: 0.8rem;
+  color: white;
 }
 
 .preset-list {
@@ -593,7 +623,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  max-height: 220px;
   overflow: auto;
 }
 
@@ -607,7 +636,8 @@ onBeforeUnmount(() => {
   gap: 0.4rem;
 }
 
-.preset-delete-container {
+.preset-delete-container,
+.preset-edit-container {
   display: flex;
   align-items: center;
 }
@@ -638,10 +668,30 @@ onBeforeUnmount(() => {
   border-color: var(--color-primary);
 }
 
+.preset-edit-button {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.6rem;
+  font-size: 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.preset-edit-button:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 1);
+  border-radius: 0.75rem;
+}
+
 .preset-delete-button {
   flex: 0 0 auto;
   padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
+  font-size: 1rem;
   border: 0;
   background: transparent;
   color: var(--color-danger);
