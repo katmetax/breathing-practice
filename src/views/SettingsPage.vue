@@ -1,7 +1,7 @@
 <template>
   <section class="settings-page">
     <div class="panel">
-      <div class="glass-panel">
+      <GlassPanel>
         <h2 class="panel-title">Configure Session</h2>
 
         <form v-if="showPresetSettings" class="form" @submit.prevent="handleSavePreset">
@@ -176,7 +176,7 @@
             </li>
           </ul>
         </section>
-      </div>
+      </GlassPanel>
     </div>
   </section>
 </template>
@@ -188,6 +188,7 @@ import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
+import GlassPanel from '../components/layout/GlassPanel.vue'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 import EditIcon from '~icons/material-symbols/edit-rounded'
 
@@ -455,21 +456,6 @@ onBeforeUnmount(() => {
 .panel {
   border-radius: 1.2rem;
   padding: 1.5rem;
-}
-
-.glass-panel {
-  min-width: 550px;
-  padding: 1.5rem;
-
-  /* The core glass effect */
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(50px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-
-  /* Border and Shadow for depth */
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.2rem;
-  box-shadow: var(--shadow-panel);
 }
 
 @media screen and (max-width: 720px) {

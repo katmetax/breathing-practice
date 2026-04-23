@@ -1,7 +1,7 @@
 <template>
   <section class="history-page">
     <div class="history-panel">
-      <div class="glass-panel">
+      <GlassPanel>
         <header class="history-header">
           <div class="history-titles">
             <h2 class="history-title">History</h2>
@@ -40,7 +40,7 @@
             </p>
           </li>
         </ul>
-      </div>
+      </GlassPanel>
     </div>
   </section>
 </template>
@@ -49,6 +49,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { historyService } from '../services/historyService'
+import GlassPanel from '../components/layout/GlassPanel.vue'
 import BreathIcon from '~icons/material-symbols/air-rounded'
 
 const route = useRoute()
@@ -98,28 +99,9 @@ function formatDuration(seconds: number): string {
   padding: 1.5rem;
 }
 
-.glass-panel {
-  min-width: 550px;
-  padding: 1.5rem;
-
-  /* The core glass effect */
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(50px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-
-  /* Border and Shadow for depth */
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.2rem;
-  box-shadow: var(--shadow-panel);
-}
-
 @media screen and (max-width: 720px) {
   .history-panel {
     padding: 0;
-  }
-
-  .glass-panel {
-    min-width: 200px;
   }
 }
 
