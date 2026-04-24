@@ -192,8 +192,11 @@ import { historyService } from '../services/historyService'
 import type { BreathPreset, SessionMode } from '../types/breathing'
 import { BreathPhase, StartEndPhase } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
+import { useWakeLock } from '../composables/useWakeLock'
 import BreathIcon from '~icons/material-symbols/air-rounded'
 import PresetIcon from '~icons/material-symbols/target'
+
+const { requestWakeLock, releaseWakeLock } = useWakeLock()
 
 const saveSuccess = ref('')
 
@@ -317,6 +320,7 @@ function beginSession(
   elapsedTotal.value = 0
   elapsedPhase.value = 0
   currentPhaseDuration.value = firstPhase.durationSec
+  requestWakeLock()
 
   timerEngine.init(
     {
@@ -347,6 +351,7 @@ function beginSession(
         currentPhase.value = ''
         lastDurationSec.value = Math.round(state.totalElapsed)
         playTone(StartEndPhase.END)
+        releaseWakeLock()
 
         historyService.add({
           presetId: preset.id,
@@ -416,6 +421,7 @@ function handleStop() {
   cancelCountdown()
   timerEngine.stop()
   stopTone()
+  releaseWakeLock()
   isRunning.value = false
   sessionComplete.value = false
   lastDurationSec.value = null
