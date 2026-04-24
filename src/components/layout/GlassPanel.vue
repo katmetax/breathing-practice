@@ -74,5 +74,15 @@
   .glass-panel {
     min-width: 200px;
   }
+
+  .gradient-blob {
+    max-width: 300px;
+  }
+}
+
+@media screen and (max-width: 490px) {
+  .gradient-blob {
+    max-width: 200px;
+  }
 }
 </style>
