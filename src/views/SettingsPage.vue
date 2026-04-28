@@ -532,6 +532,10 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 420px) {
+  .grid-2 {
+    margin-bottom: 1rem;
+  }
+
   .grid-2 .field-label {
     min-height: 2.8em;
   }
@@ -562,6 +566,12 @@ onBeforeUnmount(() => {
 .field-input:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
+}
+
+@media screen and (max-width: 490px) {
+  .field-input {
+    padding: 0.7rem 0.6rem;
+  }
 }
 
 .field-error {
@@ -600,6 +610,13 @@ onBeforeUnmount(() => {
   padding-block: 0.3rem;
   font-size: 0.8rem;
   color: white;
+}
+
+@media screen and (max-width: 490px) {
+  .btn-secondary--compact {
+    height: 44px;
+    width: 50%;
+  }
 }
 
 .preset-list {
@@ -648,6 +665,13 @@ onBeforeUnmount(() => {
 
 .preset-button:hover {
   background: var(--color-surface-soft-strong);
+}
+
+@media screen and (max-width: 490px) {
+  .preset-delete-confirm-btn,
+  .preset-delete-cancel-btn {
+    height: 44px;
+  }
 }
 
 .preset-button--active {
@@ -699,6 +723,14 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
+@media screen and (max-width: 490px) {
+  .preset-edit-button,
+  .preset-delete-button {
+    height: 44px;
+    width: 44px;
+  }
+}
+
 .preset-delete-confirm {
   display: flex;
   align-items: center;
@@ -707,10 +739,11 @@ onBeforeUnmount(() => {
 
 .preset-delete-confirm-btn {
   margin: 0;
+  border-radius: 1rem;
 }
 
 .preset-delete-cancel-btn {
-  border-radius: 0.6rem;
+  border-radius: 1rem;
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
   border: 1px solid var(--color-border-strong);

@@ -115,14 +115,13 @@
               </div>
 
               <div v-if="mode === 'rounds'" class="field">
+                <div class="display">
+                  <span class="time-value">{{ rounds }}</span>
+                  <span class="unit">RND</span>
+                </div>
                 <span class="field-label">Number of rounds</span>
 
                 <div class="slider-wrapper">
-                  <div class="display">
-                    <span class="time-value">{{ rounds }}</span>
-                    <span class="unit">RND</span>
-                  </div>
-
                   <input
                     type="range"
                     v-model.number="rounds"
@@ -140,14 +139,13 @@
               </div>
 
               <div v-else class="field">
+                <div class="display">
+                  <span class="time-value">{{ durationMinutes }}</span>
+                  <span class="unit">MIN</span>
+                </div>
                 <span class="field-label">Duration (minutes)</span>
 
                 <div class="slider-wrapper">
-                  <div class="display">
-                    <span class="time-value">{{ durationMinutes }}</span>
-                    <span class="unit">MIN</span>
-                  </div>
-
                   <input
                     type="range"
                     v-model.number="durationMinutes"
@@ -507,8 +505,15 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   align-items: baseline;
   margin-bottom: 15px;
-  margin-top: -65px;
+  margin-top: -55px;
   pointer-events: none;
+}
+
+@media screen and (max-width: 490px) {
+  .display {
+    margin-top: -45px;
+    margin-bottom: 0;
+  }
 }
 
 .time-value {
@@ -566,12 +571,31 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+@media screen and (max-width: 490px) {
+  .transparent-slider::-webkit-slider-thumb {
+    height: 44px;
+    width: 44px;
+    margin-top: -19px;
+  }
+
+  .transparent-slider::-moz-range-thumb {
+    height: 44px;
+    width: 44px;
+  }
+}
+
 .range-labels {
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+@media screen and (max-width: 490px) {
+  .range-labels {
+    margin-top: 35px;
+  }
 }
 
 .fieldset {
@@ -605,6 +629,12 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+@media screen and (max-width: 490px) {
+  .field {
+    gap: 1.5rem;
+  }
 }
 
 .field-label {
@@ -736,6 +766,16 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
+@media screen and (max-width: 490px) {
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    height: 44px;
+    max-width: 180px;
+  }
+}
+
 .mode-slider {
   position: absolute;
   width: calc(50% - 0.2rem);
@@ -744,6 +784,12 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: -1;
+}
+
+@media screen and (max-width: 490px) {
+  .mode-slider {
+    height: calc(100% - 0.5rem);
+  }
 }
 
 .mode-toggle.is-rounds .mode-slider {
@@ -799,6 +845,13 @@ onBeforeUnmount(() => {
   width: 300px;
   height: 300px;
   overflow: hidden;
+}
+
+@media screen and (max-width: 490px) {
+  .breath-blob-wrapper {
+    width: 200px;
+    height: 200px;
+  }
 }
 
 .breath-blob-svg {
