@@ -8,82 +8,67 @@
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
             <div class="grid-2">
-              <label class="field">
-                <span class="field-label">Inhale</span>
-                <input
-                  v-model.number="inhale"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="60"
-                  step="0.1"
-                  inputmode="decimal"
-                  @beforeinput="handleDurationBeforeInput"
-                  @paste="handleDurationPaste($event, BreathPhase.INHALE)"
-                  @blur="handleDurationBlur(BreathPhase.INHALE)"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Hold (after inhale)</span>
-                <input
-                  v-model.number="hold_in"
-                  class="field-input"
-                  type="number"
-                  min="0"
-                  max="60"
-                  step="0.1"
-                  inputmode="decimal"
-                  @beforeinput="handleDurationBeforeInput"
-                  @paste="handleDurationPaste($event, BreathPhase.HOLD_IN)"
-                  @blur="handleDurationBlur(BreathPhase.HOLD_IN)"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Exhale</span>
-                <input
-                  v-model.number="exhale"
-                  class="field-input"
-                  type="number"
-                  min="1"
-                  max="60"
-                  step="0.1"
-                  inputmode="decimal"
-                  @beforeinput="handleDurationBeforeInput"
-                  @paste="handleDurationPaste($event, BreathPhase.EXHALE)"
-                  @blur="handleDurationBlur(BreathPhase.EXHALE)"
-                  required
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Hold (after exhale)</span>
-                <input
-                  v-model.number="hold_out"
-                  class="field-input"
-                  type="number"
-                  min="0"
-                  max="60"
-                  step="0.1"
-                  inputmode="decimal"
-                  @beforeinput="handleDurationBeforeInput"
-                  @paste="handleDurationPaste($event, BreathPhase.HOLD_OUT)"
-                  @blur="handleDurationBlur(BreathPhase.HOLD_OUT)"
-                  required
-                />
-              </label>
-            </div>
-            <label class="field">
-              <span class="field-label">Preset name</span>
-              <input
-                v-model="presetName"
-                class="field-input"
-                type="text"
-                maxlength="40"
-                placeholder="e.g. Box Breath"
+              <FormField
+                v-model.number="inhale"
+                label="Inhale"
+                type="number"
+                min="1"
+                max="60"
+                step="0.1"
+                inputmode="decimal"
                 required
+                @beforeinput="handleDurationBeforeInput"
+                @paste="handleDurationPaste($event, BreathPhase.INHALE)"
+                @blur="handleDurationBlur(BreathPhase.INHALE)"
               />
-            </label>
+              <FormField
+                v-model.number="hold_in"
+                label="Hold (after inhale)"
+                type="number"
+                min="0"
+                max="60"
+                step="0.1"
+                inputmode="decimal"
+                required
+                @beforeinput="handleDurationBeforeInput"
+                @paste="handleDurationPaste($event, BreathPhase.HOLD_IN)"
+                @blur="handleDurationBlur(BreathPhase.HOLD_IN)"
+              />
+              <FormField
+                v-model.number="exhale"
+                label="Exhale"
+                type="number"
+                min="1"
+                max="60"
+                step="0.1"
+                inputmode="decimal"
+                required
+                @beforeinput="handleDurationBeforeInput"
+                @paste="handleDurationPaste($event, BreathPhase.EXHALE)"
+                @blur="handleDurationBlur(BreathPhase.EXHALE)"
+              />
+              <FormField
+                v-model.number="hold_out"
+                label="Hold (after exhale)"
+                type="number"
+                min="0"
+                max="60"
+                step="0.1"
+                inputmode="decimal"
+                required
+                @beforeinput="handleDurationBeforeInput"
+                @paste="handleDurationPaste($event, BreathPhase.HOLD_OUT)"
+                @blur="handleDurationBlur(BreathPhase.HOLD_OUT)"
+              />
+            </div>
+            <FormField
+              v-model="presetName"
+              label="Preset name"
+              type="text"
+              maxlength="40"
+              placeholder="e.g. Box Breath"
+              required
+            />
 
             <div class="form-actions">
               <button class="btn btn-primary" type="submit">
@@ -189,6 +174,7 @@ import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import GlassPanel from '../components/layout/GlassPanel.vue'
+import FormField from '../components/form/FormField.vue'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 import EditIcon from '~icons/material-symbols/edit-rounded'
 
@@ -524,7 +510,7 @@ onBeforeUnmount(() => {
   align-items: end;
 }
 
-.grid-2 .field-label {
+.grid-2 :deep(.field-label) {
   /* Keep a consistent label height so neighboring inputs align vertically. */
   min-height: 2.4em;
   display: flex;
@@ -536,41 +522,8 @@ onBeforeUnmount(() => {
     margin-bottom: 1rem;
   }
 
-  .grid-2 .field-label {
+  .grid-2 :deep(.field-label) {
     min-height: 2.8em;
-  }
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.field-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-}
-
-.field-input {
-  background: transparent;
-  border-radius: 0.6rem;
-  border: 1px solid var(--color-border-soft);
-  padding: 0.45rem 0.6rem;
-  color: var(--color-text-main);
-  font-size: 0.9rem;
-}
-
-.field-input:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
-@media screen and (max-width: 490px) {
-  .field-input {
-    padding: 0.7rem 0.6rem;
   }
 }
 
