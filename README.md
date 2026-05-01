@@ -1,54 +1,50 @@
-# breathing-practice-app
+# Breathing Practice
 
-This template should help get you started developing with Vue 3 in Vite.
+A progressive web app (PWA) for guided breathing exercises. Build custom breathing patterns with configurable inhale, hold, exhale, and hold durations, then run sessions by rounds or total time. Audio cues mark each phase transition. Session history is stored locally — no account or server required.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Customisable breathing presets (inhale / hold-in / exhale / hold-out durations)
+- Two session modes: rounds-based or duration-based
+- Audio cues for phase transitions
+- Session history with localStorage persistence
+- Dark / Light / System theme
+- PWA — installable, works offline
+- Screen wake lock to keep display on during sessions
+- Mobile-responsive design
 
-## Recommended Browser Setup
+## Tech stack
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+| Layer      | Technology               |
+| ---------- | ------------------------ |
+| Framework  | Vue 3 + TypeScript       |
+| Build tool | Vite                     |
+| State      | Pinia                    |
+| Routing    | Vue Router               |
+| Testing    | Vitest + @vue/test-utils |
+| Linting    | ESLint + oxlint          |
+| Formatting | Prettier                 |
+| PWA        | vite-plugin-pwa          |
 
-## Type Support for `.vue` Imports in TS
+## Prerequisites
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Node.js 20.19.0+ or 22.12.0+
+- pnpm
 
-## Customize configuration
+## Getting started
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+## Dev commands
 
-```sh
-pnpm dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-pnpm test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+| Command           | What it does                         |
+| ----------------- | ------------------------------------ |
+| `pnpm dev`        | Start dev server with HMR            |
+| `pnpm build`      | Type-check + production build        |
+| `pnpm preview`    | Preview the production build locally |
+| `pnpm test:unit`  | Run unit tests (Vitest)              |
+| `pnpm type-check` | TypeScript check only (vue-tsc)      |
+| `pnpm lint`       | Run all linters (oxlint + ESLint)    |
+| `pnpm format`     | Format code with Prettier            |
