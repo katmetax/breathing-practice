@@ -1,5 +1,20 @@
 import { BreathPhase, StartEndPhase } from '@/types/breathing'
 
+const SOUNDS: Record<string, string> = {
+  inhale:  'assets/sounds/577856__iainmccurdy__tibetan-singing-bowl-10-cm-struck.mp3',
+  holdIn:  'assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3',
+  exhale:  'assets/sounds/531268__asuriya__aud-7-chakra-5-bowl.mp3',
+  holdOut: 'assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3',
+  end:     'assets/sounds/242394__ascap__wood-hit-low-glass-bowl-5.mp3',
+}
+
+const preloaded: Record<string, HTMLAudioElement> = {}
+for (const [key, src] of Object.entries(SOUNDS)) {
+  const el = new Audio(src)
+  el.preload = 'auto'
+  preloaded[key] = el
+}
+
 let currentAudio: HTMLAudioElement | null = null
 
 const stopTone = () => {
@@ -9,38 +24,23 @@ const stopTone = () => {
   currentAudio = null
 }
 
-const useAudio = (source: string) => {
+const useAudio = (key: string) => {
   stopTone()
-  const audio = new Audio(source)
-
+  const audio = preloaded[key]
   if (!audio) return
-
-  // Reset the playhead in case it's clicked rapidly
   audio.currentTime = 0
   currentAudio = audio
-
-  audio.onended = () => {
-    if (currentAudio === audio) {
-      currentAudio = null
-    }
-  }
-
   audio.play().catch((err) => {
     console.error('Audio playback failed:', err)
-    if (currentAudio === audio) {
-      currentAudio = null
-    }
+    if (currentAudio === audio) currentAudio = null
   })
 }
 
-const playCountdownTone = () => useAudio('')
-const playInhaleTone = () =>
-  useAudio('assets/sounds/577856__iainmccurdy__tibetan-singing-bowl-10-cm-struck.mp3')
-const playExhaleTone = () => useAudio('assets/sounds/531268__asuriya__aud-7-chakra-5-bowl.mp3')
-const playHoldTone = () =>
-  useAudio('assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3')
-const playEndOfSessionTone = () =>
-  useAudio('assets/sounds/242394__ascap__wood-hit-low-glass-bowl-5.mp3')
+const playCountdownTone = () => {}
+const playInhaleTone = () => useAudio('inhale')
+const playExhaleTone = () => useAudio('exhale')
+const playHoldTone = () => useAudio('holdIn')
+const playEndOfSessionTone = () => useAudio('end')
 
 const playTone = (phase: BreathPhase | StartEndPhase) => {
   switch (phase) {
