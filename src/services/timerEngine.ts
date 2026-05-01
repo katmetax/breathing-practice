@@ -137,14 +137,16 @@ class TimerEngine {
         // One round completed.
         if (mode === 'rounds') {
           if (this.state.currentRound >= rounds) {
-            // We just finished the final hold_out; complete session.
+            this.complete()
+            return
+          }
+        } else if (mode === 'duration' && typeof totalDurationSec === 'number') {
+          if (this.state.totalElapsed >= totalDurationSec) {
             this.complete()
             return
           }
         }
 
-        // Move to next round (for both modes; duration mode may complete
-        // later based on totalDurationSec).
         this.state.currentRound += 1
         this.state.currentPhase = phases[0]?.phase ?? null
         this.onPhaseChange?.({ ...this.state })
@@ -152,25 +154,6 @@ class TimerEngine {
         // Move to next phase within the same round.
         this.state.currentPhase = phases[currentPhaseIndex + 1]?.phase ?? null
         this.onPhaseChange?.({ ...this.state })
-      }
-    }
-
-    // Duration mode completion logic:
-    // - When totalElapsed first reaches totalDurationSec, we mark that the
-    //   clock has "hit zero", but we allow the active phase and the final
-    //   hold_out of this round to complete before stopping.
-    if (mode === 'duration' && typeof totalDurationSec === 'number') {
-      if (this.state.totalElapsed >= totalDurationSec) {
-        const isHoldOut = this.state.currentPhase === 'hold_out'
-        const lastPhase = phases[phases.length - 1]
-        const isLastPhase = lastPhase?.phase === 'hold_out'
-
-        if (isHoldOut && isLastPhase) {
-          if (this.state.currentPhaseElapsed >= currentPhaseConfig.durationSec) {
-            this.complete()
-            return
-          }
-        }
       }
     }
 

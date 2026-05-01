@@ -135,6 +135,59 @@ describe('timerEngine', () => {
     expect(engine.getState().running).toBe(false)
   })
 
+  it('calls onComplete and stops after the configured number of rounds in rounds mode', () => {
+    const onComplete = vi.fn()
+    // 2-round config: inhale 4s + exhale 4s = 8s per round, 2 rounds = 16s total
+    engine.init({ ...twoPhaseConfig, rounds: 2 }, { onComplete })
+    engine.start()
+    tick(0)
+    tick(4100)    // inhale done → exhale (round 1)
+    tick(8200)    // exhale done → inhale (round 2)
+    tick(12300)   // inhale done → exhale (round 2)
+    expect(onComplete).not.toHaveBeenCalled()
+    tick(16400)   // exhale done → last phase of last round → complete
+    expect(onComplete).toHaveBeenCalledOnce()
+    expect(engine.getState().running).toBe(false)
+  })
+
+  it('calls onComplete after a full round completes once totalDurationSec is exceeded in duration mode', () => {
+    const onComplete = vi.fn()
+    // 4s inhale + 4s exhale = 8s per round; set duration to 10s so it stops after round 2 (16s)
+    engine.init(
+      { ...twoPhaseConfig, mode: 'duration', totalDurationSec: 10 },
+      { onComplete },
+    )
+    engine.start()
+    tick(0)
+    tick(4100)    // inhale done → exhale (round 1)
+    tick(8200)    // exhale done → end of round 1 (8.2s < 10s, keep going)
+    expect(onComplete).not.toHaveBeenCalled()
+    tick(12300)   // inhale done → exhale (round 2)
+    expect(onComplete).not.toHaveBeenCalled()
+    tick(16400)   // exhale done → end of round 2 (16.4s >= 10s) → complete
+    expect(onComplete).toHaveBeenCalledOnce()
+    expect(engine.getState().running).toBe(false)
+  })
+
+  it('does not stop mid-round in duration mode even when totalDurationSec is exceeded', () => {
+    const onComplete = vi.fn()
+    // 4s inhale + 4s exhale = 8s per round; set duration to 5s
+    // The timer should NOT stop after inhale (5s > 4s) — it must wait for the full round
+    engine.init(
+      { ...twoPhaseConfig, mode: 'duration', totalDurationSec: 5 },
+      { onComplete },
+    )
+    engine.start()
+    tick(0)
+    tick(4100)    // inhale done → exhale; totalElapsed 4.1s (< 5s, round not done yet)
+    expect(onComplete).not.toHaveBeenCalled()
+    tick(5200)    // mid-exhale; totalElapsed 5.2s (> 5s, but still mid-round)
+    expect(onComplete).not.toHaveBeenCalled()
+    tick(8200)    // exhale done → end of round 1 (>= 5s) → complete
+    expect(onComplete).toHaveBeenCalledOnce()
+    expect(engine.getState().running).toBe(false)
+  })
+
   it('calls onComplete immediately when phases array is empty', () => {
     const onComplete = vi.fn()
     engine.init({ phases: [], rounds: 1, mode: 'rounds' }, { onComplete })
