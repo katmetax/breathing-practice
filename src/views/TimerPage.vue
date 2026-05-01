@@ -379,6 +379,7 @@ function handleStart() {
   const totalDurationSec =
     mode.value === 'duration' ? Math.round(durationMinutes.value * 60) : undefined
 
+  sessionComplete.value = false
   isCountingDown.value = true
   countdownRemaining.value = 3
   countdownTimer = window.setInterval(() => {
