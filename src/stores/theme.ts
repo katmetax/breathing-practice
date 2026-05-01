@@ -39,7 +39,7 @@ const readSystemTheme = (): ResolvedTheme => {
   return 'dark'
 }
 
-const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#f7fafc', dark: '#070d17' }
+const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#e3eff4', dark: '#111f33' }
 const MEDIA_QUERY_COLORS: Record<string, string> = {
   '(prefers-color-scheme: light)': THEME_COLORS.light,
   '(prefers-color-scheme: dark)': THEME_COLORS.dark,
