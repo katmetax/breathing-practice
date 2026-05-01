@@ -39,10 +39,24 @@ const readSystemTheme = (): ResolvedTheme => {
   return 'dark'
 }
 
+const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#f7fafc', dark: '#070d17' }
+const MEDIA_QUERY_COLORS: Record<string, string> = {
+  '(prefers-color-scheme: light)': THEME_COLORS.light,
+  '(prefers-color-scheme: dark)': THEME_COLORS.dark,
+}
+
 const applyThemeToDom = (preference: ThemePreference, resolved: ResolvedTheme) => {
   const root = document.documentElement
   root.dataset.theme = preference
   root.style.colorScheme = resolved
+
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+    if (preference === 'system') {
+      meta.content = MEDIA_QUERY_COLORS[meta.media] ?? THEME_COLORS[resolved]
+    } else {
+      meta.content = THEME_COLORS[resolved]
+    }
+  })
 }
 
 let mediaQueryList: MediaQueryList | null = null
