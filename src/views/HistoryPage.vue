@@ -32,7 +32,7 @@
                 {{ formatDate(session.completedAt) }}
               </p>
               <p class="session-duration">
-                {{ formatDuration(session.durationSeconds) }}
+                {{ session.roundsCompleted != null ? formatRounds(session.roundsCompleted) : formatDuration(session.durationSeconds) }}
               </p>
             </div>
             <p class="session-note">
@@ -78,13 +78,12 @@ function formatDate(iso: string): string {
   })
 }
 
+function formatRounds(rounds: number): string {
+  return `${rounds} ${rounds === 1 ? 'round' : 'rounds'}`
+}
+
 function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  if (minutes === 0) {
-    return `${remainingSeconds} seconds`
-  }
-  return `${minutes} min ${remainingSeconds.toString().padStart(2, '0')} sec`
+  return `${Math.floor(seconds / 60)} min`
 }
 </script>
 

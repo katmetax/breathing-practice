@@ -37,5 +37,6 @@ export interface BreathSessionRecord {
   presetId: string | null
   presetName: string
   durationSeconds: number
+  roundsCompleted?: number
   completedAt: string // ISO timestamp
 }

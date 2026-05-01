@@ -201,7 +201,7 @@ describe('TimerPage', () => {
     await nextTick()
 
     expect(wrapper.find('.session-meta').text()).toContain('Session completed')
-    expect(wrapper.find('.session-meta').text()).toContain('2 min 05 sec')
+    expect(wrapper.find('.session-meta').text()).toContain('5 min')
     expect(vi.mocked(historyService.add)).toHaveBeenCalledWith({
       presetId: mockPreset.id,
       presetName: mockPreset.name,

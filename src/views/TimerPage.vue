@@ -43,12 +43,6 @@
             </svg>
           </div>
 
-          <!--
-              Debug-only literal timer. Kept for development but hidden in the UI.
-            <p class="breath-timer-label">
-              {{ formattedElapsed }}
-            </p>
-            -->
           <p class="session-meta">
             <span v-if="isRunning" class="muted">
               Round {{ currentRound }} •
@@ -214,10 +208,9 @@ const isCountingDown = ref(false)
 const countdownRemaining = ref(0)
 const currentPhase = ref<BreathPhase | ''>('')
 const currentRound = ref(1)
-const elapsedTotal = ref(0)
-const elapsedPhase = ref(0)
 const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
+const lastRoundsCompleted = ref<number | null>(null)
 const selectedPreset = ref(
   (selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)) ||
     presets.value[0],
@@ -246,30 +239,14 @@ const phaseLabel = computed(() => {
   }
 })
 
-const formattedElapsed = computed(() => {
-  // Show total elapsed with sub-second precision so fractional phase
-  // durations (e.g. 8.2s) are visible during the session.
-  const seconds = elapsedTotal.value
-  if (!Number.isFinite(seconds) || seconds < 0) return '0.0s'
-  return `${seconds.toFixed(1)}s`
-})
-
-const phaseProgress = computed(() => {
-  const total = currentPhaseDuration.value
-  if (!Number.isFinite(total) || total <= 0) return 0
-  const ratio = elapsedPhase.value / total
-  if (!Number.isFinite(ratio)) return 0
-  return Math.max(0, Math.min(1, ratio))
-})
-
 const lastDurationDisplay = computed(() => {
-  if (lastDurationSec.value == null) return ''
-  const minutes = Math.floor(lastDurationSec.value / 60)
-  const seconds = lastDurationSec.value % 60
-  if (minutes === 0) {
-    return `${seconds} seconds`
+  if (lastRoundsCompleted.value != null) {
+    return `${lastRoundsCompleted.value} ${lastRoundsCompleted.value === 1 ? 'round' : 'rounds'}`
   }
-  return `${minutes} min ${seconds.toString().padStart(2, '0')} sec`
+  if (lastDurationSec.value != null) {
+    return `${Math.floor(lastDurationSec.value / 60)} min`
+  }
+  return ''
 })
 
 watch(
@@ -315,8 +292,6 @@ function beginSession(
   lastDurationSec.value = null
   currentPhase.value = firstPhase.phase
   currentRound.value = 1
-  elapsedTotal.value = 0
-  elapsedPhase.value = 0
   currentPhaseDuration.value = firstPhase.durationSec
   requestWakeLock()
 
@@ -331,23 +306,23 @@ function beginSession(
       onPhaseChange(state) {
         currentPhase.value = state.currentPhase ?? BreathPhase.INHALE
         currentRound.value = state.currentRound
-        elapsedPhase.value = state.currentPhaseElapsed
-        elapsedTotal.value = state.totalElapsed
         const nextPhaseConfig = phases.find((p) => p.phase === state.currentPhase)
         if (nextPhaseConfig) {
           currentPhaseDuration.value = nextPhaseConfig.durationSec
         }
         playTone(currentPhase.value)
       },
-      onTick(state) {
-        elapsedPhase.value = state.currentPhaseElapsed
-        elapsedTotal.value = state.totalElapsed
-      },
       onComplete(state) {
         isRunning.value = false
         sessionComplete.value = true
         currentPhase.value = ''
-        lastDurationSec.value = Math.round(state.totalElapsed)
+        if (mode.value === 'rounds') {
+          lastRoundsCompleted.value = rounds.value
+          lastDurationSec.value = null
+        } else {
+          lastDurationSec.value = totalDurationSec ?? Math.round(state.totalElapsed)
+          lastRoundsCompleted.value = null
+        }
         playTone(StartEndPhase.END)
         releaseWakeLock()
 
@@ -355,6 +330,7 @@ function beginSession(
           presetId: preset.id,
           presetName: preset.name,
           durationSeconds: Math.round(state.totalElapsed),
+          ...(mode.value === 'rounds' ? { roundsCompleted: rounds.value } : {}),
         })
       },
     },
@@ -423,10 +399,9 @@ function handleStop() {
   isRunning.value = false
   sessionComplete.value = false
   lastDurationSec.value = null
+  lastRoundsCompleted.value = null
   currentPhase.value = ''
   currentRound.value = 1
-  elapsedTotal.value = 0
-  elapsedPhase.value = 0
   currentPhaseDuration.value = 1
 }
 
