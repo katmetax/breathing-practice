@@ -54,6 +54,7 @@ defineEmits<{
 @media screen and (max-width: 490px) {
   .field-input {
     padding: 0.7rem 0.6rem;
+    font-size: 16px;
   }
 }
 </style>
