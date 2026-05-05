@@ -1,13 +1,14 @@
 import { BreathPhase, StartEndPhase } from '@/types/breathing'
 
 const SOUNDS: Record<string, string> = {
-  inhale:  'assets/sounds/577856__iainmccurdy__tibetan-singing-bowl-10-cm-struck.mp3',
-  holdIn:  'assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3',
-  exhale:  'assets/sounds/531268__asuriya__aud-7-chakra-5-bowl.mp3',
+  inhale: 'assets/sounds/577856__iainmccurdy__tibetan-singing-bowl-10-cm-struck.mp3',
+  holdIn: 'assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3',
+  exhale: 'assets/sounds/531268__asuriya__aud-7-chakra-5-bowl.mp3',
   holdOut: 'assets/sounds/535950__mttvn__e-flat-tibetan-singing-bowl-struck.mp3',
-  end:     'assets/sounds/242394__ascap__wood-hit-low-glass-bowl-5.mp3',
+  end: 'assets/sounds/242394__ascap__wood-hit-low-glass-bowl-5.mp3',
 }
 
+// Preload the audio so there is no delay between tones during the breathing phases
 const preloaded: Record<string, HTMLAudioElement> = {}
 for (const [key, src] of Object.entries(SOUNDS)) {
   const el = new Audio(src)
@@ -22,6 +23,22 @@ const stopTone = () => {
   currentAudio.pause()
   currentAudio.currentTime = 0
   currentAudio = null
+}
+
+// Browsers block audio triggered by timers unless the element was first played during a user gesture.
+// Call this on user tap to silently play+pause every element, unlocking them for timer-driven playback.
+const unlockAudio = () => {
+  for (const audio of Object.values(preloaded)) {
+    audio.muted = true
+    audio
+      .play()
+      .then(() => {
+        audio.pause()
+        audio.currentTime = 0
+        audio.muted = false
+      })
+      .catch(() => {})
+  }
 }
 
 const useAudio = (key: string) => {
@@ -61,4 +78,4 @@ const playTone = (phase: BreathPhase | StartEndPhase) => {
   }
 }
 
-export { playTone, stopTone }
+export { playTone, stopTone, unlockAudio }
