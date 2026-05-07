@@ -43,20 +43,21 @@
             </svg>
           </div>
 
-          <p class="session-meta">
+          <div class="session-meta">
             <span v-if="isRunning" class="muted">
               Round {{ currentRound }} •
               {{ mode === 'rounds' ? `${rounds} total` : 'duration mode' }}
             </span>
-            <span v-else-if="sessionComplete" class="session-meta--completed">
-              <BreathIcon />
-              Session completed:
-              {{ lastDurationDisplay }}
-            </span>
+            <div v-else-if="sessionComplete" class="session-complete-toast">
+              <CheckCircleIcon class="session-complete-icon" />
+              <span class="session-complete-label">Session complete</span>
+              <span class="session-complete-dot"></span>
+              <span class="session-complete-stat">{{ lastDurationDisplay }}</span>
+            </div>
             <span v-else class="muted">
               When you start, this circle will guide your breath phases.
             </span>
-          </p>
+          </div>
 
           <span
             v-if="selectedPreset"
@@ -185,7 +186,7 @@ import type { BreathPreset, SessionMode } from '../types/breathing'
 import { BreathPhase, StartEndPhase } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import { useWakeLock } from '../composables/useWakeLock'
-import BreathIcon from '~icons/material-symbols/air-rounded'
+import CheckCircleIcon from '~icons/material-symbols/check-circle-rounded'
 import PresetIcon from '~icons/material-symbols/target'
 
 const { requestWakeLock, releaseWakeLock } = useWakeLock()
@@ -922,22 +923,74 @@ onBeforeUnmount(() => {
 .session-meta {
   font-size: 0.85rem;
   color: var(--color-text-strong);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -0.75rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
 }
 
 @media screen and (max-width: 490px) {
   .session-meta {
-    margin: 0 0 1rem;
-    text-align: center;
+    margin-top: -1rem;
+    margin-bottom: 1.2rem;
   }
 }
 
-.session-meta--completed {
+.session-complete-toast {
   display: flex;
   align-items: center;
+  gap: 10px;
+  background: rgba(44, 207, 190, 0.18);
+  border: 1px solid rgba(44, 207, 190, 0.35);
+  border-radius: 100px;
+  padding: 10px 20px;
+  animation: fadeUp 0.4s ease;
 }
 
-.session-meta--completed svg {
-  font-size: 17px;
-  margin-right: 5px;
+@media screen and (max-width: 490px) {
+  .session-complete-toast {
+    padding: 10px 16px;
+  }
+}
+
+.session-complete-icon {
+  color: var(--color-primary);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.session-complete-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: white;
+}
+
+.session-complete-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.session-complete-stat {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
