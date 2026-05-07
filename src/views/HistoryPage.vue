@@ -3,14 +3,6 @@
     <header class="history-header">
       <div class="history-titles">
         <p class="page-label">HISTORY</p>
-        <p class="history-subtitle">
-          A gentle log of your past sessions — no streaks, no pressure.
-        </p>
-      </div>
-
-      <div class="completed-sessions" v-if="totalNumberOfSessions > 0" title="Completed sessions">
-        <span class="sessions-count"><BreathIcon /> {{ totalNumberOfSessions }}</span>
-        <div class="glow-effect"></div>
       </div>
     </header>
 
@@ -24,6 +16,11 @@
     </div>
 
     <template v-else>
+      <div class="sessions-counter">
+        <span class="sessions-counter-number">{{ totalNumberOfSessions }}</span>
+        <span class="sessions-counter-label sessions-counter-label--short">sessions</span>
+        <span class="sessions-counter-label sessions-counter-label--long">sessions completed</span>
+      </div>
       <div class="session-table-wrap">
         <div class="session-table-header">
           <span class="table-col-label">Preset</span>
@@ -110,7 +107,6 @@ function formatDuration(seconds: number): string {
 .history-header {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
 }
 
 .history-titles {
@@ -132,44 +128,34 @@ function formatDuration(seconds: number): string {
   line-height: 1.5;
 }
 
-/* Sessions count badge */
-.completed-sessions {
-  margin: 0.1rem 0 0 0.75rem;
-  position: relative;
+/* Sessions counter */
+.sessions-counter {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
 }
 
-.sessions-count {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  position: relative;
-  z-index: 2;
-  color: var(--color-text-strong);
-  font-weight: 700;
-  font-size: 14px;
+.sessions-counter-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
-.glow-effect {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: var(--gradient-breath-circle);
-  opacity: 0.5;
-  filter: blur(10px);
-  transform: rotate(270deg);
+.sessions-counter-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
+}
+
+.sessions-counter-label--long {
+  display: none;
 }
 
 /* Empty state */
@@ -300,6 +286,19 @@ function formatDuration(seconds: number): string {
 
 /* Desktop: grid table */
 @media screen and (min-width: 600px) {
+  .sessions-counter-number,
+  .sessions-counter-label {
+    font-size: 0.75rem;
+  }
+
+  .sessions-counter-label--short {
+    display: none;
+  }
+
+  .sessions-counter-label--long {
+    display: inline;
+  }
+
   .session-table-wrap {
     background: var(--color-card-surface);
     border: 1px solid var(--color-card-border);
