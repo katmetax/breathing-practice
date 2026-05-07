@@ -2,7 +2,7 @@
   <section class="timer-page">
     <div>
       <div>
-        <section class="session-visual">
+        <section class="session-visual" :class="{ 'is-presession': !isRunning && !isCountingDown }">
           <p class="breath-phase-label">
             {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
           </p>
@@ -10,7 +10,7 @@
           <div class="breath-blob-wrapper">
             <svg
               class="breath-blob-svg"
-              :style="`transition: transform ${isRunning ? currentPhaseDuration : 15}s cubic-bezier(0.4, 0, 0.2, 1)`"
+              :style="`transition: transform ${isRunning ? currentPhaseDuration : 15}s ease-in-out`"
               :class="`breath-blob-phase--${currentPhase}`"
               viewBox="-120 -120 240 240"
               xmlns="http://www.w3.org/2000/svg"
@@ -803,6 +803,22 @@ onBeforeUnmount(() => {
   .session-visual {
     margin: -1rem 0 0;
     gap: 1rem;
+    transition:
+      margin-top 0.7s ease-in-out,
+      gap 0.7s ease-in-out;
+  }
+
+  .session-visual.is-presession {
+    margin-top: -2.5rem;
+    gap: 0.5rem;
+  }
+
+  .breath-blob-wrapper {
+    transition: transform 0.7s ease-in-out;
+  }
+
+  .session-visual.is-presession .breath-blob-wrapper {
+    transform: translateY(-25px);
   }
 }
 
@@ -911,6 +927,7 @@ onBeforeUnmount(() => {
 @media screen and (max-width: 490px) {
   .session-meta {
     margin: 0 0 1rem;
+    text-align: center;
   }
 }
 
