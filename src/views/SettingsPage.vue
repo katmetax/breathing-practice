@@ -1,12 +1,134 @@
 <template>
   <section class="settings-page">
-    <div class="panel">
-      <GlassPanel>
-        <h2 class="panel-title">Configure Session</h2>
+    <div class="page-label">SETTINGS</div>
 
-        <form v-if="showPresetSettings" class="form" @submit.prevent="handleSavePreset">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Custom Pattern (seconds)</legend>
+    <section class="presets-section">
+      <div class="presets-header">
+        <h3 class="section-title">My Presets</h3>
+        <button class="btn-outline new-preset-desktop" type="button" @click="handleNewPreset">
+          + New Preset
+        </button>
+      </div>
+
+      <p v-if="saveSuccess" class="field-success">
+        {{ saveSuccess }}
+      </p>
+
+      <p v-if="presets.length === 0" class="muted">No presets yet. Create one to get started.</p>
+      <ul v-else class="preset-list">
+        <li v-for="preset in presets" :key="preset.id" class="preset-item">
+          <div
+            class="preset-card"
+            :class="{ 'preset-card--active': preset.id === selectedPresetId }"
+            @click="handleSelectPreset(preset.id)"
+          >
+            <div class="preset-card-header">
+              <div class="preset-name-row">
+                <span
+                  v-if="preset.id === selectedPresetId"
+                  class="preset-dot"
+                  aria-hidden="true"
+                ></span>
+                <span class="preset-name">{{ preset.name }}</span>
+              </div>
+
+              <div class="preset-actions" @click.stop>
+                <button class="preset-edit-btn" type="button" @click="handleEditPreset(preset.id)">
+                  <EditIcon /><span class="edit-label">Edit</span>
+                </button>
+
+                <template v-if="pendingDeleteId !== preset.id">
+                  <button
+                    class="preset-delete-btn"
+                    type="button"
+                    :disabled="preset.isDefault"
+                    @click="pendingDeleteId = preset.id"
+                  >
+                    <DeleteIcon />
+                  </button>
+                </template>
+                <template v-else>
+                  <div class="preset-delete-confirm">
+                    <button
+                      class="btn btn-secondary btn-secondary--compact preset-delete-confirm-btn"
+                      type="button"
+                      @click="handleDeletePreset(preset.id)"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      class="preset-delete-cancel-btn"
+                      type="button"
+                      @click="pendingDeleteId = null"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="preset-phases">
+              <div class="phase-cell phase-cell--tinted">
+                <span class="phase-value">{{ formatSeconds(preset.inhaleSec) }}s</span>
+                <span class="phase-label">Inhale</span>
+              </div>
+              <div class="phase-cell">
+                <span class="phase-value">{{ formatSeconds(preset.holdInSec) }}s</span>
+                <span class="phase-label">Hold</span>
+              </div>
+              <div class="phase-cell phase-cell--tinted">
+                <span class="phase-value">{{ formatSeconds(preset.exhaleSec) }}s</span>
+                <span class="phase-label">Exhale</span>
+              </div>
+              <div class="phase-cell">
+                <span class="phase-value">{{ formatSeconds(preset.holdOutSec) }}s</span>
+                <span class="phase-label">Hold</span>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Mobile sticky New Preset button -->
+    <div class="new-preset-mobile">
+      <button class="btn-outline btn-outline--full" type="button" @click="handleNewPreset">
+        + New Preset
+      </button>
+    </div>
+
+    <!-- New / Edit Preset modal -->
+    <div v-if="showPresetSettings" class="modal-overlay" @click.self="handleCancelPreset">
+      <div class="modal" role="dialog">
+        <div class="modal-header">
+          <span class="modal-title-label">{{
+            selectedPresetId ? 'Edit Preset' : 'New Preset'
+          }}</span>
+          <button
+            class="modal-close-btn"
+            type="button"
+            @click="handleCancelPreset"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form @submit.prevent="handleSavePreset">
+          <div class="modal-section">
+            <FormField
+              v-model="presetName"
+              label="Preset name"
+              type="text"
+              maxlength="40"
+              placeholder="e.g. Box Breath"
+              required
+            />
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section-label">Phase Durations (seconds)</div>
             <div class="grid-2">
               <FormField
                 v-model.number="inhale"
@@ -61,119 +183,28 @@
                 @blur="handleDurationBlur(BreathPhase.HOLD_OUT)"
               />
             </div>
-            <FormField
-              v-model="presetName"
-              label="Preset name"
-              type="text"
-              maxlength="40"
-              placeholder="e.g. Box Breath"
-              required
-            />
-
-            <div class="form-actions">
-              <button class="btn btn-primary" type="submit">
-                {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
-              </button>
-            </div>
-            <p v-if="saveError" class="field-error">
-              {{ saveError }}
-            </p>
-          </fieldset>
-        </form>
-        <span v-else class="muted"
-          >Select a preset from the list below for your breathing practice.</span
-        >
-        <section class="presets-section">
-          <p v-if="saveSuccess" class="field-success">
-            {{ saveSuccess }}
-          </p>
-
-          <div class="presets-header">
-            <h3 class="section-title">Preset Library</h3>
-            <button
-              class="btn btn-secondary btn-secondary--compact"
-              type="button"
-              @click="handleNewPreset"
-            >
-              New Preset
-            </button>
           </div>
-          <p v-if="presets.length === 0" class="muted">
-            No presets yet. Create one to get started.
+
+          <p v-if="saveError" class="field-error">
+            {{ saveError }}
           </p>
-          <ul v-else class="preset-list">
-            <li v-for="preset in presets" :key="preset.id" class="preset-item">
-              <div class="preset-row">
-                <button
-                  class="preset-button"
-                  type="button"
-                  :class="{
-                    'preset-button--active': preset.id === selectedPresetId,
-                  }"
-                  @click="handleSelectPreset(preset.id)"
-                >
-                  <span class="preset-name">{{ preset.name }}</span>
-                  <span class="preset-meta">
-                    {{ formatSeconds(preset.inhaleSec) }} / {{ formatSeconds(preset.holdInSec) }} /
-                    {{ formatSeconds(preset.exhaleSec) }} /
-                    {{ formatSeconds(preset.holdOutSec) }} sec
-                  </span>
-                </button>
 
-                <div class="preset-edit-container">
-                  <button
-                    class="preset-edit-button"
-                    type="button"
-                    @click="handleEditPreset(preset.id)"
-                  >
-                    <EditIcon />
-                  </button>
-                </div>
-
-                <div class="preset-delete-container">
-                  <button
-                    v-if="pendingDeleteId !== preset.id"
-                    class="preset-delete-button"
-                    type="button"
-                    :disabled="preset.isDefault"
-                    @click="pendingDeleteId = preset.id"
-                  >
-                    <DeleteIcon />
-                  </button>
-                  <div v-else class="preset-delete-confirm">
-                    <button
-                      class="preset-delete-confirm-btn btn btn-secondary btn-secondary--compact"
-                      type="button"
-                      @click="handleDeletePreset(preset.id)"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      class="preset-delete-cancel-btn"
-                      type="button"
-                      @click="pendingDeleteId = null"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </section>
-      </GlassPanel>
+          <button class="btn btn-primary modal-submit-btn" type="submit">
+            {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
+          </button>
+        </form>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
-import GlassPanel from '../components/layout/GlassPanel.vue'
 import FormField from '../components/form/FormField.vue'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 import EditIcon from '~icons/material-symbols/edit-rounded'
@@ -307,7 +338,6 @@ watch(
 
 function reloadPresets() {
   presets.value = presetManager.list()
-  // If a preset is currently selected and still exists in the list, keep form in sync.
   if (selectedPresetId.value) {
     const exists = presets.value.some((p) => p.id === selectedPresetId.value)
     if (exists) {
@@ -334,7 +364,12 @@ function handleSelectPreset(id: string) {
 const handleEditPreset = (id: string) => {
   editPresetId.value = id
   handleSelectPreset(id)
-  showPresetSettings.value = !showPresetSettings.value
+  showPresetSettings.value = true
+}
+
+function handleCancelPreset() {
+  showPresetSettings.value = false
+  saveError.value = ''
 }
 
 function handleDeletePreset(id: string) {
@@ -356,7 +391,6 @@ function handleDeletePreset(id: string) {
       saveSuccess.value = ''
     }
   } else if (!presets.value.length) {
-    // No presets left; clear form for creating a new one.
     resetFormToDefaults()
   }
 }
@@ -433,114 +467,52 @@ function handleSavePreset() {
   }
 }
 
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && showPresetSettings.value) {
+    handleCancelPreset()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
 onBeforeUnmount(() => {
   timerEngine.stop()
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
 <style scoped>
-.panel {
-  border-radius: 1.2rem;
-  padding: 1.5rem;
-}
-
-@media screen and (max-width: 720px) {
-  .settings-page {
-    width: 100%;
-  }
-
-  .panel {
-    padding: 0;
-  }
-
-  .glass-panel {
-    min-width: 200px;
-  }
-}
-
-.panel-title {
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  color: var(--color-text-strong);
-}
-
-.btn-primary {
+.settings-page {
   width: 100%;
-  margin: 1rem 0;
+  max-width: 700px;
+  padding: 0 0.5rem;
+  /* room for the mobile sticky button */
+  padding-bottom: 5rem;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+@media screen and (min-width: 600px) {
+  .settings-page {
+    padding-bottom: 0.5rem;
+  }
 }
 
-.form--session {
-  margin-bottom: 1.5rem;
-}
-
-.fieldset {
-  border-radius: 0.9rem;
-  border: 1px solid var(--color-border-strong);
-  padding: 1rem;
-}
-
-.fieldset-legend {
-  padding: 0 0.4rem;
+.page-label {
   font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  color: var(--color-primary);
+  margin-bottom: 1.25rem;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  align-items: end;
-}
-
-.grid-2 :deep(.field-label) {
-  /* Keep a consistent label height so neighboring inputs align vertically. */
-  min-height: 2.4em;
-  display: flex;
-  align-items: flex-end;
-}
-
-@media (max-width: 420px) {
-  .grid-2 {
-    margin-bottom: 1rem;
-  }
-
-  .grid-2 :deep(.field-label) {
-    min-height: 2.8em;
-  }
-}
-
-.field-error {
-  margin-top: 0.3rem;
-  font-size: 0.8rem;
-  color: var(--color-danger-soft);
-}
-
-.field-success {
-  margin-top: 0.3rem;
-  font-size: 0.8rem;
-  color: var(--color-success-soft);
-}
+/* ── Presets section ── */
 
 .presets-section {
-  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .presets-header {
@@ -551,26 +523,26 @@ onBeforeUnmount(() => {
 }
 
 .section-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.18em;
   color: var(--color-text-muted);
-  margin-bottom: 0.5rem;
+  margin: 0;
 }
 
-.btn-secondary--compact {
-  padding-inline: 0.8rem;
-  padding-block: 0.3rem;
+.field-success {
   font-size: 0.8rem;
-  color: white;
+  color: var(--color-success-soft);
+  margin: 0;
 }
 
-@media screen and (max-width: 490px) {
-  .btn-secondary--compact {
-    height: 44px;
-    width: 50%;
-  }
+.muted {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
+
+/* ── Preset list ── */
 
 .preset-list {
   list-style: none;
@@ -578,46 +550,187 @@ onBeforeUnmount(() => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  overflow: auto;
+  gap: 0.5rem;
 }
 
 .preset-item {
   width: 100%;
 }
 
-.preset-row {
+.preset-card {
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--color-card-border);
+  padding: 0.875rem 1rem 0.75rem;
+  background: var(--color-card-surface);
+  cursor: pointer;
+  transition:
+    background 130ms ease,
+    border-color 130ms ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.preset-card:hover {
+  background: var(--color-card-surface-hover);
+}
+
+.preset-card--active {
+  border-color: var(--color-primary);
+  background: var(--color-surface-active);
+}
+
+/* Card header row */
+.preset-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.preset-name-row {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0;
 }
 
-.preset-delete-container,
-.preset-edit-container {
+.preset-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.preset-name {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action buttons */
+.preset-actions {
   display: flex;
   align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
 }
 
-.preset-button {
-  flex: 1 1 auto;
-  text-align: left;
-  border-radius: 0.75rem;
-  padding: 0.55rem 0.75rem;
-  border: 1px solid transparent;
-  background: var(--color-surface-soft);
-  color: var(--color-text-strong);
+.preset-edit-btn {
   display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.preset-edit-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.edit-label {
+  line-height: 1;
+}
+
+.preset-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+  font-size: 1rem;
   cursor: pointer;
   transition:
-    background-color 130ms ease,
-    border-color 130ms ease,
-    transform 100ms ease;
+    background 120ms ease,
+    border-color 120ms ease;
+  flex-shrink: 0;
 }
 
-.preset-button:hover {
-  background: var(--color-surface-soft-strong);
+.preset-delete-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger) 18%, transparent);
+  border-color: var(--color-danger);
+}
+
+.preset-delete-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media screen and (max-width: 490px) {
+  .preset-edit-btn {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 0.9rem;
+  }
+
+  .preset-delete-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Delete confirm */
+.preset-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-secondary--compact {
+  padding-inline: 0.75rem;
+  padding-block: 0.3rem;
+  font-size: 0.78rem;
+  color: white;
+  margin: 0;
+}
+
+.preset-delete-confirm-btn {
+  border-radius: 999px;
+}
+
+.preset-delete-confirm-btn:hover {
+  background: var(--color-danger);
+}
+
+.preset-delete-cancel-btn {
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.preset-delete-cancel-btn:hover {
+  background: var(--color-text-muted);
+  color: var(--color-text-on-primary);
 }
 
 @media screen and (max-width: 490px) {
@@ -627,108 +740,209 @@ onBeforeUnmount(() => {
   }
 }
 
-.preset-button--active {
-  border-color: var(--color-primary);
+/* Phase values row */
+.preset-phases {
+  display: flex;
+  align-items: stretch;
 }
 
-.preset-edit-button {
-  flex: 0 0 auto;
-  padding: 0.35rem 0.6rem;
-  font-size: 1rem;
-  border: 0;
-  background: transparent;
+.phase-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.2rem;
+  border-radius: 0.5rem;
+  margin: 0 0.2rem;
+}
+
+.phase-cell--tinted {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.phase-value {
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.phase-label {
+  font-size: 0.85rem;
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+/* ── Outline button ── */
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.45rem 1.1rem;
   cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+  font-family: inherit;
+  transition: background 120ms ease;
+  text-decoration: none;
 }
 
-.preset-edit-button:hover {
-  background: rgba(248, 113, 113, 0.1);
-  border-color: rgba(248, 113, 113, 1);
-  border-radius: 0.75rem;
+.btn-outline:hover {
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
-.preset-delete-button {
-  flex: 0 0 auto;
-  padding: 0.35rem 0.6rem;
-  font-size: 1rem;
-  border: 0;
-  background: transparent;
-  color: var(--color-danger);
-  cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+.btn-outline--full {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
 }
 
-.preset-delete-button:hover:not(:disabled) {
-  background: rgba(248, 113, 113, 0.1);
-  border-color: rgba(248, 113, 113, 1);
-  border-radius: 0.75rem;
+/* Desktop New Preset button: inline in header */
+.new-preset-desktop {
+  display: none;
 }
 
-.preset-delete-button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-@media screen and (max-width: 490px) {
-  .preset-edit-button,
-  .preset-delete-button {
-    height: 44px;
-    width: 44px;
+@media screen and (min-width: 600px) {
+  .new-preset-desktop {
+    display: inline-flex;
   }
 }
 
-.preset-delete-confirm {
+/* Mobile sticky New Preset button */
+.new-preset-mobile {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem 1.75rem;
+  background: linear-gradient(to top, var(--color-page-bg) 55%, transparent);
+  z-index: 100;
+}
+
+@media screen and (min-width: 600px) {
+  .new-preset-mobile {
+    display: none;
+  }
+}
+
+/* ── Modal ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-modal-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-modal-bg);
+  border-radius: 1.25rem 1.25rem 0 0;
+  padding: 1.5rem 1.5rem 2.5rem;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border-soft);
+  border-bottom: none;
+}
+
+@media screen and (min-width: 600px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 1.5rem;
+  }
+
+  .modal {
+    border-radius: 1.25rem;
+    max-width: 480px;
+    max-height: unset;
+    border-bottom: 1px solid var(--color-border-soft);
+  }
+}
+
+.modal-header {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
-.preset-delete-confirm-btn {
-  margin: 0;
-  border-radius: 1rem;
-}
-
-.preset-delete-cancel-btn {
-  border-radius: 1rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.7rem;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface-soft-strong);
-  color: var(--color-text-strong);
-  cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
-}
-
-.preset-delete-confirm-btn:hover {
-  background: var(--color-danger);
-}
-
-.preset-delete-cancel-btn:hover {
-  color: var(--color-text-on-primary);
-  background: var(--color-text-muted);
-}
-
-.preset-name {
-  font-size: 0.9rem;
-}
-
-.preset-meta {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-}
-
-.muted {
-  color: var(--color-text-muted);
+.modal-title-label {
   font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.modal-close-btn {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
+  line-height: 1;
+  font-family: inherit;
+  transition: color 120ms ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--color-text-main);
+}
+
+.modal-section {
+  margin-bottom: 1.1rem;
+}
+
+.modal-section-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding-top: 0.95rem;
+  margin-bottom: 0.65rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.grid-2 :deep(.field-label) {
+  min-height: 2.4em;
+  display: flex;
+  align-items: flex-end;
+}
+
+@media (max-width: 420px) {
+  .grid-2 :deep(.field-label) {
+    min-height: 2.8em;
+  }
+}
+
+.field-error {
+  font-size: 0.8rem;
+  color: var(--color-danger-soft);
+  margin: 0.25rem 0 0;
+}
+
+.modal-submit-btn {
+  width: 100%;
+  margin: 0.75rem 0 0;
 }
 </style>

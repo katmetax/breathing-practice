@@ -85,6 +85,16 @@ a {
   --shadow-primary: 0 12px 30px rgba(34, 197, 94, 0.35);
   --shadow-primary-hover: 0 18px 40px rgba(34, 197, 94, 0.5);
   --shadow-breath-circle: 10px 20px 25px rgba(195, 195, 195, 0.2);
+
+  /* Card & input surfaces (light) */
+  --color-card-surface: rgba(255, 255, 255, 0.75);
+  --color-card-surface-hover: rgba(255, 255, 255, 0.95);
+  --color-card-border: rgba(0, 0, 0, 0.08);
+  --color-surface-active: rgba(44, 207, 190, 0.08);
+  --color-input-bg: rgba(0, 0, 0, 0.04);
+  --color-stripe: rgba(0, 0, 0, 0.025);
+  --color-modal-bg: #f0f8fb;
+  --color-modal-overlay: rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -146,6 +156,16 @@ a {
     --shadow-primary-hover: 0 18px 40px rgba(34, 197, 94, 0.35);
     --shadow-breath-circle: 10px 20px 25px rgba(4, 8, 14, 0.35);
     --shadow-text: none;
+
+    /* Card & input surfaces (dark) */
+    --color-card-surface: rgba(255, 255, 255, 0.05);
+    --color-card-surface-hover: rgba(255, 255, 255, 0.08);
+    --color-card-border: rgba(255, 255, 255, 0.09);
+    --color-surface-active: rgba(44, 207, 190, 0.12);
+    --color-input-bg: rgba(255, 255, 255, 0.06);
+    --color-stripe: rgba(255, 255, 255, 0.025);
+    --color-modal-bg: #0c1824;
+    --color-modal-overlay: rgba(0, 0, 0, 0.65);
   }
 }
 
@@ -207,6 +227,16 @@ a {
   --shadow-primary-hover: 0 18px 40px rgba(34, 197, 94, 0.5);
   --shadow-breath-circle: 10px 20px 25px rgba(195, 195, 195, 0.2);
   --shadow-text: 0 0 10px rgba(255, 255, 255, 0.8);
+
+  /* Card & input surfaces (light) */
+  --color-card-surface: rgba(255, 255, 255, 0.75);
+  --color-card-surface-hover: rgba(255, 255, 255, 0.95);
+  --color-card-border: rgba(0, 0, 0, 0.08);
+  --color-surface-active: rgba(44, 207, 190, 0.08);
+  --color-input-bg: rgba(0, 0, 0, 0.04);
+  --color-stripe: rgba(0, 0, 0, 0.025);
+  --color-modal-bg: #f0f8fb;
+  --color-modal-overlay: rgba(0, 0, 0, 0.3);
 }
 
 :root[data-theme='dark'] {
@@ -266,6 +296,16 @@ a {
   --shadow-primary: 0 12px 30px rgba(34, 197, 94, 0.25);
   --shadow-primary-hover: 0 18px 40px rgba(34, 197, 94, 0.35);
   --shadow-breath-circle: 10px 20px 25px rgba(4, 8, 14, 0.35);
+
+  /* Card & input surfaces (dark) */
+  --color-card-surface: rgba(255, 255, 255, 0.05);
+  --color-card-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-card-border: rgba(255, 255, 255, 0.09);
+  --color-surface-active: rgba(44, 207, 190, 0.12);
+  --color-input-bg: rgba(255, 255, 255, 0.06);
+  --color-stripe: rgba(255, 255, 255, 0.025);
+  --color-modal-bg: #0c1824;
+  --color-modal-overlay: rgba(0, 0, 0, 0.65);
 }
 
 ::-webkit-scrollbar {
