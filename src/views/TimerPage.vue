@@ -7,7 +7,7 @@
             {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
           </p>
 
-          <div class="breath-blob-wrapper">
+          <div class="breath-blob-wrapper" :class="{ 'session--active': isRunning || isCountingDown }">
             <svg
               class="breath-blob-svg"
               :style="`transition: transform ${isRunning ? currentPhaseDuration : 15}s ease-in-out`"
@@ -807,7 +807,15 @@ onBeforeUnmount(() => {
   }
 
   .breath-blob-wrapper {
-    transition: transform 0.7s ease-in-out;
+    transition:
+      transform 0.7s ease-in-out,
+      width 0.7s ease-in-out,
+      height 0.7s ease-in-out;
+  }
+
+  .breath-blob-wrapper.session--active {
+    width: 300px;
+    height: 300px;
   }
 
   .session-visual.is-presession .breath-blob-wrapper {
