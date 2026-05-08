@@ -124,6 +124,7 @@
               maxlength="40"
               placeholder="e.g. Box Breath"
               required
+              stacked
             />
           </div>
 
@@ -917,22 +918,9 @@ onBeforeUnmount(() => {
 }
 
 .grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  align-items: end;
-}
-
-.grid-2 :deep(.field-label) {
-  min-height: 2.4em;
   display: flex;
-  align-items: flex-end;
-}
-
-@media (max-width: 420px) {
-  .grid-2 :deep(.field-label) {
-    min-height: 2.8em;
-  }
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .field-error {
