@@ -34,7 +34,7 @@ defineEmits<{
 
 .field-label {
   flex: 0 0 50%;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--color-text-muted);

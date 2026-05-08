@@ -129,56 +129,43 @@
           </div>
 
           <div class="modal-section">
-            <div class="modal-section-label">Phase Durations (seconds)</div>
-            <div class="grid-2">
-              <FormField
+            <div class="phase-durations-header">
+              <div class="modal-section-label">Phase Durations</div>
+              <span class="decimal-hint">tap to type a decimal (e.g. 1.5)</span>
+            </div>
+            <div class="stepper-list">
+              <PhaseStepper
                 v-model.number="inhale"
                 label="Inhale"
-                type="number"
-                min="1"
-                max="60"
-                step="0.1"
-                inputmode="decimal"
-                required
+                :min="1"
+                :max="60"
                 @beforeinput="handleDurationBeforeInput"
                 @paste="handleDurationPaste($event, BreathPhase.INHALE)"
                 @blur="handleDurationBlur(BreathPhase.INHALE)"
               />
-              <FormField
+              <PhaseStepper
                 v-model.number="hold_in"
-                label="Hold (after inhale)"
-                type="number"
-                min="0"
-                max="60"
-                step="0.1"
-                inputmode="decimal"
-                required
+                label="Hold"
+                :min="0"
+                :max="60"
                 @beforeinput="handleDurationBeforeInput"
                 @paste="handleDurationPaste($event, BreathPhase.HOLD_IN)"
                 @blur="handleDurationBlur(BreathPhase.HOLD_IN)"
               />
-              <FormField
+              <PhaseStepper
                 v-model.number="exhale"
                 label="Exhale"
-                type="number"
-                min="1"
-                max="60"
-                step="0.1"
-                inputmode="decimal"
-                required
+                :min="1"
+                :max="60"
                 @beforeinput="handleDurationBeforeInput"
                 @paste="handleDurationPaste($event, BreathPhase.EXHALE)"
                 @blur="handleDurationBlur(BreathPhase.EXHALE)"
               />
-              <FormField
+              <PhaseStepper
                 v-model.number="hold_out"
-                label="Hold (after exhale)"
-                type="number"
-                min="0"
-                max="60"
-                step="0.1"
-                inputmode="decimal"
-                required
+                label="Hold"
+                :min="0"
+                :max="60"
                 @beforeinput="handleDurationBeforeInput"
                 @paste="handleDurationPaste($event, BreathPhase.HOLD_OUT)"
                 @blur="handleDurationBlur(BreathPhase.HOLD_OUT)"
@@ -207,6 +194,7 @@ import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import FormField from '../components/form/FormField.vue'
+import PhaseStepper from '../components/form/PhaseStepper.vue'
 import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
 import EditIcon from '~icons/material-symbols/edit-rounded'
 
@@ -908,16 +896,29 @@ onBeforeUnmount(() => {
 }
 
 .modal-section-label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  padding-top: 0.95rem;
-  margin-bottom: 0.65rem;
 }
 
-.grid-2 {
+.phase-durations-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.95rem;
+  margin-bottom: 0.875rem;
+}
+
+.decimal-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.stepper-list {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
