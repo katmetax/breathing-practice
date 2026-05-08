@@ -1,6 +1,20 @@
 # Breathing Practice
 
+![Homepage](.github/screenshots/mobile/homepage.png)![Settings](.github/screenshots/mobile/settings.png)![Preset](.github/screenshots/mobile/preset.png)![History](.github/screenshots/mobile/history.png)
+
 A progressive web app (PWA) for guided breathing exercises. Build custom breathing patterns with configurable inhale, hold, exhale, and hold durations, then run sessions by rounds or total time. Audio cues mark each phase transition. Session history is stored locally — no account or server required.
+
+## Live app
+
+[https://breathing-practice.netlify.app/](https://breathing-practice.netlify.app/)
+
+For the best experience, install it to your phone's home screen:
+
+**iOS (Safari):** tap the Share button → "Add to Home Screen"
+
+**Android (Chrome):** tap the three-dot menu → "Add to Home Screen" (or look for the install prompt in the address bar)
+
+This installs it as a PWA — it runs fullscreen, works offline, and feels like a native app.
 
 ## Features
 
@@ -48,3 +62,21 @@ pnpm install
 | `pnpm type-check` | TypeScript check only (vue-tsc)      |
 | `pnpm lint`       | Run all linters (oxlint + ESLint)    |
 | `pnpm format`     | Format code with Prettier            |
+
+## Feedback:
+
+Feedback is always welcome! If you have a feature request, notice a bug or think something could be improved feel free to open an "issue" and I'll take a look at it.
+
+## Future/nice to haves:
+
+- Re-think how a preset is set/selected:
+  - Have categorised preset breathing patterns (e.g. grounding, energising, calming) so that the user can start a session without any prior knowledge of breathing practices
+  - Identify the different breathing patterns automatically and name them (for example box breathing, top triangle breathing, bottom triangle breathing etc.)
+
+- Improve the breathing graphic:
+  - Add aborder that matches SVG breathing shape and that shows where the SVG will scale to (up/down) on inhale/exhale and the SVG shape fills that space as it scales. This is to guide a deaf user how long they need to keep inhaling/exhaling for.
+  - Add option to change breathing graphic to bell curve type graph
+
+- Find a way to use this lovely relaxing soundscape :) https://freesound.org/people/DudeAwesome/sounds/790545/
+
+- Perhaps add a countdown tone so there is instant audio feedback to signify the session start?
