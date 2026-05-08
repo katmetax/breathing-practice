@@ -95,8 +95,8 @@ describe('timerEngine', () => {
     const onTick = vi.fn()
     engine.init(twoPhaseConfig, { onTick })
     engine.start()
-    tick(0)      // delta = 0
-    tick(2000)   // delta = 2s
+    tick(0) // delta = 0
+    tick(2000) // delta = 2s
     const lastState = onTick.mock.calls[onTick.mock.calls.length - 1]![0]
     expect(lastState.totalElapsed).toBeCloseTo(2)
     expect(lastState.currentPhaseElapsed).toBeCloseTo(2)
@@ -105,20 +105,31 @@ describe('timerEngine', () => {
   it('transitions to the next phase when the current phase duration elapses', () => {
     const onPhaseChange = vi.fn()
     engine.init(twoPhaseConfig, { onPhaseChange })
-    engine.start()   // fires onPhaseChange once
+    engine.start() // fires onPhaseChange once
     tick(0)
-    tick(4100)       // inhale (4s) done → exhale
+    tick(4100) // inhale (4s) done → exhale
     expect(onPhaseChange).toHaveBeenCalledTimes(2)
     expect(engine.getState().currentPhase).toBe(BreathPhase.EXHALE)
-    expect(engine.getState().currentPhaseElapsed).toBeCloseTo(0)
+    expect(engine.getState().currentPhaseElapsed).toBeCloseTo(0.1)
+  })
+
+  it('carries overshoot time into the next phase on transition', () => {
+    engine.init(twoPhaseConfig, {}) // inhale 4s, exhale 4s
+    engine.start()
+    tick(0)
+    tick(4250) // 250ms overshoot into a 4s inhale
+    // Without the fix: currentPhaseElapsed = 0
+    // With the fix:    currentPhaseElapsed = 0.25 (the overshoot is carried in)
+    expect(engine.getState().currentPhase).toBe(BreathPhase.EXHALE)
+    expect(engine.getState().currentPhaseElapsed).toBeCloseTo(0.25)
   })
 
   it('advances the round number when the last phase of a round completes', () => {
-    engine.init(twoPhaseConfig, {})  // rounds: 2
+    engine.init(twoPhaseConfig, {}) // rounds: 2
     engine.start()
     tick(0)
-    tick(4100)   // inhale done → exhale
-    tick(8200)   // exhale (last phase) done → round 2, back to inhale
+    tick(4100) // inhale done → exhale
+    tick(8200) // exhale (last phase) done → round 2, back to inhale
     const state = engine.getState()
     expect(state.currentRound).toBe(2)
     expect(state.currentPhase).toBe(BreathPhase.INHALE)
@@ -129,8 +140,8 @@ describe('timerEngine', () => {
     engine.init({ ...twoPhaseConfig, rounds: 1 }, { onComplete })
     engine.start()
     tick(0)
-    tick(4100)   // inhale done → exhale
-    tick(8200)   // exhale (last phase, last round) → complete
+    tick(4100) // inhale done → exhale
+    tick(8200) // exhale (last phase, last round) → complete
     expect(onComplete).toHaveBeenCalledOnce()
     expect(engine.getState().running).toBe(false)
   })
@@ -141,11 +152,11 @@ describe('timerEngine', () => {
     engine.init({ ...twoPhaseConfig, rounds: 2 }, { onComplete })
     engine.start()
     tick(0)
-    tick(4100)    // inhale done → exhale (round 1)
-    tick(8200)    // exhale done → inhale (round 2)
-    tick(12300)   // inhale done → exhale (round 2)
+    tick(4100) // inhale done → exhale (round 1)
+    tick(8200) // exhale done → inhale (round 2)
+    tick(12300) // inhale done → exhale (round 2)
     expect(onComplete).not.toHaveBeenCalled()
-    tick(16400)   // exhale done → last phase of last round → complete
+    tick(16400) // exhale done → last phase of last round → complete
     expect(onComplete).toHaveBeenCalledOnce()
     expect(engine.getState().running).toBe(false)
   })
@@ -153,18 +164,15 @@ describe('timerEngine', () => {
   it('calls onComplete after a full round completes once totalDurationSec is exceeded in duration mode', () => {
     const onComplete = vi.fn()
     // 4s inhale + 4s exhale = 8s per round; set duration to 10s so it stops after round 2 (16s)
-    engine.init(
-      { ...twoPhaseConfig, mode: 'duration', totalDurationSec: 10 },
-      { onComplete },
-    )
+    engine.init({ ...twoPhaseConfig, mode: 'duration', totalDurationSec: 10 }, { onComplete })
     engine.start()
     tick(0)
-    tick(4100)    // inhale done → exhale (round 1)
-    tick(8200)    // exhale done → end of round 1 (8.2s < 10s, keep going)
+    tick(4100) // inhale done → exhale (round 1)
+    tick(8200) // exhale done → end of round 1 (8.2s < 10s, keep going)
     expect(onComplete).not.toHaveBeenCalled()
-    tick(12300)   // inhale done → exhale (round 2)
+    tick(12300) // inhale done → exhale (round 2)
     expect(onComplete).not.toHaveBeenCalled()
-    tick(16400)   // exhale done → end of round 2 (16.4s >= 10s) → complete
+    tick(16400) // exhale done → end of round 2 (16.4s >= 10s) → complete
     expect(onComplete).toHaveBeenCalledOnce()
     expect(engine.getState().running).toBe(false)
   })
@@ -173,17 +181,14 @@ describe('timerEngine', () => {
     const onComplete = vi.fn()
     // 4s inhale + 4s exhale = 8s per round; set duration to 5s
     // The timer should NOT stop after inhale (5s > 4s) — it must wait for the full round
-    engine.init(
-      { ...twoPhaseConfig, mode: 'duration', totalDurationSec: 5 },
-      { onComplete },
-    )
+    engine.init({ ...twoPhaseConfig, mode: 'duration', totalDurationSec: 5 }, { onComplete })
     engine.start()
     tick(0)
-    tick(4100)    // inhale done → exhale; totalElapsed 4.1s (< 5s, round not done yet)
+    tick(4100) // inhale done → exhale; totalElapsed 4.1s (< 5s, round not done yet)
     expect(onComplete).not.toHaveBeenCalled()
-    tick(5200)    // mid-exhale; totalElapsed 5.2s (> 5s, but still mid-round)
+    tick(5200) // mid-exhale; totalElapsed 5.2s (> 5s, but still mid-round)
     expect(onComplete).not.toHaveBeenCalled()
-    tick(8200)    // exhale done → end of round 1 (>= 5s) → complete
+    tick(8200) // exhale done → end of round 1 (>= 5s) → complete
     expect(onComplete).toHaveBeenCalledOnce()
     expect(engine.getState().running).toBe(false)
   })
@@ -201,9 +206,9 @@ describe('timerEngine', () => {
     engine.init(twoPhaseConfig, { onComplete })
     engine.start()
     tick(0)
-    tick(2000)  // mid-session
+    tick(2000) // mid-session
 
-    engine.init(twoPhaseConfig, {})  // re-init should stop and reset
+    engine.init(twoPhaseConfig, {}) // re-init should stop and reset
 
     expect(engine.getState().running).toBe(false)
     expect(engine.getState().totalElapsed).toBe(0)

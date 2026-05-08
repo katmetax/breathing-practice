@@ -211,10 +211,4 @@ describe('SettingsPage', () => {
     await nextTick()
     expect(store.selectedPresetId).toBe('box_default')
   })
-
-  it('timerEngine.stop called on unmount', () => {
-    const wrapper = mountComponent()
-    wrapper.unmount()
-    expect(vi.mocked(timerEngine.stop)).toHaveBeenCalled()
-  })
 })

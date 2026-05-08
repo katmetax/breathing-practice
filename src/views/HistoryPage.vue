@@ -64,16 +64,18 @@ import BreathIcon from '~icons/material-symbols/air-rounded'
 
 const route = useRoute()
 const sessionItems = ref(historyService.listRecent(50))
+const totalSessionCount = ref(historyService.listAll().length)
 
 const reloadSessions = () => {
   sessionItems.value = historyService.listRecent(50)
+  totalSessionCount.value = historyService.listAll().length
 }
 
 onMounted(reloadSessions)
 watch(() => route.path, reloadSessions)
 
 const sessions = computed(() => sessionItems.value)
-const totalNumberOfSessions = computed(() => sessionItems.value.length)
+const totalNumberOfSessions = computed(() => totalSessionCount.value)
 
 const sessionLabel = (session: { presetName?: string }) => session.presetName ?? 'Session'
 

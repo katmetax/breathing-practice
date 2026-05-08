@@ -129,7 +129,12 @@ class TimerEngine {
 
     // Handle phase transition when the current phase duration has elapsed.
     if (this.state.currentPhaseElapsed >= currentPhaseConfig.durationSec) {
-      this.state.currentPhaseElapsed = 0
+      // Carry the overshoot into the next phase rather than resetting to 0.
+      // rAF frames don't land exactly on phase boundaries, so the last frame
+      // before a transition almost always runs a few ms long. Subtracting the
+      // target duration means that surplus time is already counted in the next
+      // phase, keeping cumulative drift near zero across a full session.
+      this.state.currentPhaseElapsed -= currentPhaseConfig.durationSec
 
       const isLastPhase = currentPhaseIndex === phases.length - 1
 

@@ -176,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
@@ -212,9 +212,8 @@ const currentRound = ref(1)
 const currentPhaseDuration = ref(1)
 const lastDurationSec = ref<number | null>(null)
 const lastRoundsCompleted = ref<number | null>(null)
-const selectedPreset = ref(
-  (selectedPresetId.value && presets.value.find((p) => p.id === selectedPresetId.value)) ||
-    presets.value[0],
+const selectedPreset = computed(
+  () => presets.value.find((p) => p.id === selectedPresetId.value) ?? presets.value[0],
 )
 
 let countdownTimer: number | null = null
@@ -249,13 +248,6 @@ const lastDurationDisplay = computed(() => {
   }
   return ''
 })
-
-watch(
-  () => presetManager.list(),
-  (next) => {
-    presets.value = next
-  },
-)
 
 function reloadPresets() {
   presets.value = presetManager.list()

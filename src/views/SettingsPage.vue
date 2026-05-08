@@ -191,7 +191,6 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
-import { timerEngine } from '../services/timerEngine'
 import { BreathPhase, type BreathPreset } from '../types/breathing'
 import { useSessionConfigStore } from '../stores/sessionConfig'
 import FormField from '../components/form/FormField.vue'
@@ -208,7 +207,6 @@ const presetName = ref('Box Breath')
 const saveError = ref('')
 const saveSuccess = ref('')
 
-const editPresetId = ref<string | null>(null)
 const pendingDeleteId = ref<string | null>(null)
 
 const showPresetSettings = ref<boolean>(false)
@@ -327,13 +325,6 @@ function sanitizePresetName(raw: string): string {
   return withoutControlChars.trim().slice(0, MAX_PRESET_NAME_LENGTH)
 }
 
-watch(
-  () => presetManager.list(),
-  (next) => {
-    presets.value = next
-  },
-)
-
 function reloadPresets() {
   presets.value = presetManager.list()
   if (selectedPresetId.value) {
@@ -360,7 +351,6 @@ function handleSelectPreset(id: string) {
 }
 
 const handleEditPreset = (id: string) => {
-  editPresetId.value = id
   handleSelectPreset(id)
   showPresetSettings.value = true
 }
@@ -476,7 +466,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  timerEngine.stop()
   document.removeEventListener('keydown', handleKeydown)
 })
 </script>
