@@ -118,6 +118,7 @@
         <form @submit.prevent="handleSavePreset">
           <div class="modal-section">
             <FormField
+              ref="presetNameFieldRef"
               v-model="presetName"
               label="Preset name"
               type="text"
@@ -187,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { presetManager } from '../services/presetManager'
 import { timerEngine } from '../services/timerEngine'
@@ -211,6 +212,14 @@ const editPresetId = ref<string | null>(null)
 const pendingDeleteId = ref<string | null>(null)
 
 const showPresetSettings = ref<boolean>(false)
+const presetNameFieldRef = ref<InstanceType<typeof FormField> | null>(null)
+
+watch(showPresetSettings, async (val) => {
+  if (val) {
+    await nextTick()
+    presetNameFieldRef.value?.focus()
+  }
+})
 
 const presets = ref<BreathPreset[]>(presetManager.list())
 const sessionConfigStore = useSessionConfigStore()

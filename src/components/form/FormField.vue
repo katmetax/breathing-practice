@@ -2,6 +2,7 @@
   <label class="field" :class="{ 'field--stacked': stacked }">
     <span class="field-label">{{ label }}</span>
     <input
+      ref="inputRef"
       v-bind="$attrs"
       :value="modelValue"
       class="field-input"
@@ -11,6 +12,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 defineOptions({ inheritAttrs: false })
 
 defineProps<{
@@ -22,6 +25,10 @@ defineProps<{
 defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
+
+const inputRef = ref<HTMLInputElement | null>(null)
+
+defineExpose({ focus: () => inputRef.value?.focus() })
 </script>
 
 <style scoped>
