@@ -17,12 +17,11 @@ pnpm type-check     # Run type check
 - Use TypeScript for all new files
 - Use ES modules (import/export) syntax, not CommonJS (require)
 - Destructure imports when possible (eg. import { foo } from 'bar')
-- Prefer function declarations for named, reusable functions.
-- Use arrow functions instead of `function()`
-- Use double quotes, semicolons
+- Prefer function declarations for named, reusable functions. Otherwise prefer arrow functions.
+- Use double quotes, no semicolons
 - Use functional patterns where possible
 - Prefer named exports. Use default exports only when a framework contract requires them.
 
 ## Workflow
 
-- Be sure to typecheck when you're done making a series of code changes
+- Be sure to typecheck and run the unit tests when you're done making a series of code changes
