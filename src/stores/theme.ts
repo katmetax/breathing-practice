@@ -1,18 +1,18 @@
-import { computed, ref } from 'vue'
-import { defineStore } from 'pinia'
+import { computed, ref } from "vue"
+import { defineStore } from "pinia"
 
-export type ThemePreference = 'system' | 'light' | 'dark'
-export type ResolvedTheme = 'light' | 'dark'
+export type ThemePreference = "system" | "light" | "dark"
+export type ResolvedTheme = "light" | "dark"
 
-const THEME_STORAGE_KEY = 'breathing_theme_preference_v1'
-const THEME_ORDER: ThemePreference[] = ['system', 'light', 'dark']
-const DARK_MODE_MEDIA_QUERY = '(prefers-color-scheme: dark)'
+const THEME_STORAGE_KEY = "breathing_theme_preference_v1"
+const THEME_ORDER: ThemePreference[] = ["system", "light", "dark"]
+const DARK_MODE_MEDIA_QUERY = "(prefers-color-scheme: dark)"
 
-const isThemePreference = (value: string | null): value is ThemePreference => {
-  return value === 'system' || value === 'light' || value === 'dark'
+function isThemePreference(value: string | null): value is ThemePreference {
+  return value === "system" || value === "light" || value === "dark"
 }
 
-const readStoredThemePreference = (): ThemePreference => {
+function readStoredThemePreference(): ThemePreference {
   try {
     const value = window.localStorage.getItem(THEME_STORAGE_KEY)
     if (isThemePreference(value)) {
@@ -21,10 +21,10 @@ const readStoredThemePreference = (): ThemePreference => {
   } catch {
     // Ignore storage access failures and use defaults.
   }
-  return 'system'
+  return "system"
 }
 
-const persistThemePreference = (value: ThemePreference) => {
+function persistThemePreference(value: ThemePreference) {
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, value)
   } catch {
@@ -32,26 +32,26 @@ const persistThemePreference = (value: ThemePreference) => {
   }
 }
 
-const readSystemTheme = (): ResolvedTheme => {
+function readSystemTheme(): ResolvedTheme {
   if (!window.matchMedia(DARK_MODE_MEDIA_QUERY).matches) {
-    return 'light'
+    return "light"
   }
-  return 'dark'
+  return "dark"
 }
 
-const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#e3eff4', dark: '#111f33' }
+const THEME_COLORS: Record<ResolvedTheme, string> = { light: "#e3eff4", dark: "#111f33" }
 const MEDIA_QUERY_COLORS: Record<string, string> = {
-  '(prefers-color-scheme: light)': THEME_COLORS.light,
-  '(prefers-color-scheme: dark)': THEME_COLORS.dark,
+  "(prefers-color-scheme: light)": THEME_COLORS.light,
+  "(prefers-color-scheme: dark)": THEME_COLORS.dark,
 }
 
-const applyThemeToDom = (preference: ThemePreference, resolved: ResolvedTheme) => {
+function applyThemeToDom(preference: ThemePreference, resolved: ResolvedTheme) {
   const root = document.documentElement
   root.dataset.theme = preference
   root.style.colorScheme = resolved
 
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-    if (preference === 'system') {
+    if (preference === "system") {
       meta.content = MEDIA_QUERY_COLORS[meta.media] ?? THEME_COLORS[resolved]
     } else {
       meta.content = THEME_COLORS[resolved]
@@ -62,35 +62,35 @@ const applyThemeToDom = (preference: ThemePreference, resolved: ResolvedTheme) =
 let mediaQueryList: MediaQueryList | null = null
 let hasMediaQueryListener = false
 
-export const useThemeStore = defineStore('theme', () => {
+export const useThemeStore = defineStore("theme", () => {
   const preference = ref<ThemePreference>(readStoredThemePreference())
   const systemTheme = ref<ResolvedTheme>(readSystemTheme())
 
   const resolvedTheme = computed<ResolvedTheme>(() => {
-    if (preference.value === 'system') {
+    if (preference.value === "system") {
       return systemTheme.value
     }
     return preference.value
   })
 
-  const applyTheme = () => {
+  function applyTheme() {
     applyThemeToDom(preference.value, resolvedTheme.value)
   }
 
-  const setThemePreference = (next: ThemePreference) => {
+  function setThemePreference(next: ThemePreference) {
     preference.value = next
     persistThemePreference(next)
     applyTheme()
   }
 
-  const cycleThemePreference = () => {
+  function cycleThemePreference() {
     const currentIndex = THEME_ORDER.indexOf(preference.value)
     const nextIndex = (currentIndex + 1) % THEME_ORDER.length
-    const nextPreference = THEME_ORDER[nextIndex] ?? 'system'
+    const nextPreference = THEME_ORDER[nextIndex] ?? "system"
     setThemePreference(nextPreference)
   }
 
-  const initializeTheme = () => {
+  function initializeTheme() {
     systemTheme.value = readSystemTheme()
     applyTheme()
 
@@ -100,17 +100,13 @@ export const useThemeStore = defineStore('theme', () => {
 
     mediaQueryList = window.matchMedia(DARK_MODE_MEDIA_QUERY)
     const onSystemThemeChange = (event: MediaQueryListEvent) => {
-      systemTheme.value = event.matches ? 'dark' : 'light'
-      if (preference.value === 'system') {
+      systemTheme.value = event.matches ? "dark" : "light"
+      if (preference.value === "system") {
         applyTheme()
       }
     }
 
-    if (typeof mediaQueryList.addEventListener === 'function') {
-      mediaQueryList.addEventListener('change', onSystemThemeChange)
-    } else {
-      mediaQueryList.addEventListener('change', onSystemThemeChange)
-    }
+    mediaQueryList.addEventListener("change", onSystemThemeChange)
     hasMediaQueryListener = true
   }
 

@@ -103,7 +103,7 @@
       <div class="modal" role="dialog">
         <div class="modal-header">
           <span class="modal-title-label">{{
-            selectedPresetId ? 'Edit Preset' : 'New Preset'
+            selectedPresetId ? "Edit Preset" : "New Preset"
           }}</span>
           <button
             class="modal-close-btn"
@@ -179,7 +179,7 @@
           </p>
 
           <button class="btn btn-primary modal-submit-btn" type="submit">
-            {{ selectedPresetId ? 'Update Preset' : 'Save Preset' }}
+            {{ selectedPresetId ? "Update Preset" : "Save Preset" }}
           </button>
         </form>
       </div>
@@ -188,24 +188,24 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { presetManager } from '../services/presetManager'
-import { BreathPhase, type BreathPreset } from '../types/breathing'
-import { useSessionConfigStore } from '../stores/sessionConfig'
-import FormField from '../components/form/FormField.vue'
-import PhaseStepper from '../components/form/PhaseStepper.vue'
-import DeleteIcon from '~icons/material-symbols/delete-outline-rounded'
-import EditIcon from '~icons/material-symbols/edit-rounded'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { storeToRefs } from "pinia"
+import { presetManager } from "../services/presetManager"
+import { BreathPhase, type BreathPreset } from "../types/breathing"
+import { useSessionConfigStore } from "../stores/sessionConfig"
+import FormField from "../components/form/FormField.vue"
+import PhaseStepper from "../components/form/PhaseStepper.vue"
+import DeleteIcon from "~icons/material-symbols/delete-outline-rounded"
+import EditIcon from "~icons/material-symbols/edit-rounded"
 
 const inhale = ref(4)
 const hold_in = ref(4)
 const exhale = ref(4)
 const hold_out = ref(4)
-const presetName = ref('Box Breath')
+const presetName = ref("Box Breath")
 
-const saveError = ref('')
-const saveSuccess = ref('')
+const saveError = ref("")
+const saveSuccess = ref("")
 
 const pendingDeleteId = ref<string | null>(null)
 
@@ -238,7 +238,7 @@ const durationRefs: Record<BreathPhase, typeof inhale> = {
 }
 
 function formatSeconds(value: number): string {
-  if (Number.isNaN(value)) return '0'
+  if (Number.isNaN(value)) return "0"
   if (Number.isInteger(value)) return value.toString()
   return value.toFixed(1)
 }
@@ -248,7 +248,7 @@ function resetFormToDefaults() {
   hold_in.value = 4
   exhale.value = 4
   hold_out.value = 4
-  presetName.value = ''
+  presetName.value = ""
 }
 
 function loadPresetIntoForm(id: string | null) {
@@ -271,7 +271,7 @@ function normalizeDuration(value: number, field: BreathPhase): number {
 }
 
 function parseDurationText(raw: string, field: BreathPhase): number | null {
-  const cleaned = raw.replace(',', '.').trim()
+  const cleaned = raw.replace(",", ".").trim()
   if (!cleaned) return null
   if (!/^\d+(\.\d+)?$/.test(cleaned)) return null
   const parsed = Number(cleaned)
@@ -284,8 +284,8 @@ function setDurationValue(field: BreathPhase, value: number): void {
 }
 
 function handleDurationBeforeInput(event: InputEvent): void {
-  if (event.inputType.startsWith('delete')) return
-  const text = event.data ?? ''
+  if (event.inputType.startsWith("delete")) return
+  const text = event.data ?? ""
   if (!text) return
   if (!/^[\d.,]+$/.test(text)) {
     event.preventDefault()
@@ -293,7 +293,7 @@ function handleDurationBeforeInput(event: InputEvent): void {
 }
 
 function handleDurationPaste(event: ClipboardEvent, field: BreathPhase): void {
-  const pasted = event.clipboardData?.getData('text') ?? ''
+  const pasted = event.clipboardData?.getData("text") ?? ""
   const parsed = parseDurationText(pasted, field)
   if (parsed === null) {
     event.preventDefault()
@@ -307,22 +307,12 @@ function handleDurationBlur(field: BreathPhase): void {
   setDurationValue(field, durationRefs[field].value)
 }
 
-function containsControlCharacters(raw: string): boolean {
-  for (const char of raw) {
-    const code = char.charCodeAt(0)
-    if (code <= 0x1f || code === 0x7f) return true
-  }
-  return false
-}
-
 function sanitizePresetName(raw: string): string {
-  let withoutControlChars = ''
-  for (const char of raw) {
-    const code = char.charCodeAt(0)
-    if (code <= 0x1f || code === 0x7f) continue
-    withoutControlChars += char
-  }
-  return withoutControlChars.trim().slice(0, MAX_PRESET_NAME_LENGTH)
+  return [...raw]
+    .filter((c) => c.charCodeAt(0) > 0x1f && c.charCodeAt(0) !== 0x7f)
+    .join("")
+    .trim()
+    .slice(0, MAX_PRESET_NAME_LENGTH)
 }
 
 function reloadPresets() {
@@ -346,18 +336,18 @@ watch(selectedPresetId, (next) => {
 function handleSelectPreset(id: string) {
   sessionConfigStore.setSelectedPresetId(id)
   pendingDeleteId.value = null
-  saveSuccess.value = ''
+  saveSuccess.value = ""
   loadPresetIntoForm(id)
 }
 
-const handleEditPreset = (id: string) => {
+function handleEditPreset(id: string) {
   handleSelectPreset(id)
   showPresetSettings.value = true
 }
 
 function handleCancelPreset() {
   showPresetSettings.value = false
-  saveError.value = ''
+  saveError.value = ""
 }
 
 function handleDeletePreset(id: string) {
@@ -376,7 +366,7 @@ function handleDeletePreset(id: string) {
     if (nextId) {
       loadPresetIntoForm(nextId)
       showPresetSettings.value = false
-      saveSuccess.value = ''
+      saveSuccess.value = ""
     }
   } else if (!presets.value.length) {
     resetFormToDefaults()
@@ -386,23 +376,19 @@ function handleDeletePreset(id: string) {
 function handleNewPreset() {
   sessionConfigStore.setSelectedPresetId(null)
   pendingDeleteId.value = null
-  saveError.value = ''
-  saveSuccess.value = ''
+  saveError.value = ""
+  saveSuccess.value = ""
   showPresetSettings.value = true
   resetFormToDefaults()
 }
 
 function handleSavePreset() {
-  saveError.value = ''
-  saveSuccess.value = ''
+  saveError.value = ""
+  saveSuccess.value = ""
 
   const normalizedName = sanitizePresetName(presetName.value)
   if (!normalizedName) {
-    saveError.value = 'Please provide a name for the preset.'
-    return
-  }
-  if (containsControlCharacters(presetName.value)) {
-    saveError.value = 'Preset name contains invalid characters.'
+    saveError.value = "Please provide a name for the preset."
     return
   }
 
@@ -417,7 +403,7 @@ function handleSavePreset() {
         !Number.isFinite(value) || value < DURATION_MIN_BY_FIELD[key] || value > 60,
     )
   ) {
-    saveError.value = 'Inhale/exhale must be 1-60 seconds; holds must be 0-60 seconds.'
+    saveError.value = "Inhale/exhale must be 1-60 seconds; holds must be 0-60 seconds."
     return
   }
   DURATION_FIELD_KEYS.forEach((key) => {
@@ -426,12 +412,9 @@ function handleSavePreset() {
   presetName.value = normalizedName
 
   const targetId = selectedPresetId.value
-  const base =
-    targetId && presets.value.find((p) => p.id === targetId)
-      ? presets.value.find((p) => p.id === targetId)
-      : null
+  const base = (targetId && presets.value.find((p) => p.id === targetId)) || null
 
-  const payload: Omit<BreathPreset, 'id'> = {
+  const payload: Omit<BreathPreset, "id"> = {
     name: normalizedName,
     inhaleSec: normalizeDuration(inhale.value, BreathPhase.INHALE),
     holdInSec: normalizeDuration(hold_in.value, BreathPhase.HOLD_IN),
@@ -456,17 +439,17 @@ function handleSavePreset() {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape' && showPresetSettings.value) {
+  if (e.key === "Escape" && showPresetSettings.value) {
     handleCancelPreset()
   }
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
+  document.addEventListener("keydown", handleKeydown)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener("keydown", handleKeydown)
 })
 </script>
 
@@ -516,17 +499,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0.18em;
   color: var(--color-text-muted);
   margin: 0;
-}
-
-.field-success {
-  font-size: 0.8rem;
-  color: var(--color-success-soft);
-  margin: 0;
-}
-
-.muted {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
 }
 
 /* ── Preset list ── */
@@ -920,12 +892,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.field-error {
-  font-size: 0.8rem;
-  color: var(--color-danger-soft);
-  margin: 0.25rem 0 0;
 }
 
 .modal-submit-btn {

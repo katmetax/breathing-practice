@@ -10,18 +10,18 @@ export interface BreathPreset {
 }
 
 export enum BreathPhase {
-  INHALE = 'inhale',
-  HOLD_IN = 'hold_in',
-  EXHALE = 'exhale',
-  HOLD_OUT = 'hold_out',
+  INHALE = "inhale",
+  HOLD_IN = "hold_in",
+  EXHALE = "exhale",
+  HOLD_OUT = "hold_out",
 }
 
 export enum StartEndPhase {
-  START = 'start',
-  END = 'end',
+  START = "start",
+  END = "end",
 }
 
-export type SessionMode = 'rounds' | 'duration'
+export type SessionMode = "rounds" | "duration"
 
 export interface SessionConfig {
   mode: SessionMode

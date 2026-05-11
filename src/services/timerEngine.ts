@@ -1,4 +1,4 @@
-import type { BreathPhase } from '../types/breathing'
+import type { BreathPhase } from "../types/breathing"
 
 export interface PhaseTiming {
   phase: BreathPhase
@@ -8,7 +8,7 @@ export interface PhaseTiming {
 export interface TimerConfig {
   phases: PhaseTiming[]
   rounds: number
-  mode: 'rounds' | 'duration'
+  mode: "rounds" | "duration"
   totalDurationSec?: number
 }
 
@@ -140,12 +140,12 @@ class TimerEngine {
 
       if (isLastPhase) {
         // One round completed.
-        if (mode === 'rounds') {
+        if (mode === "rounds") {
           if (this.state.currentRound >= rounds) {
             this.complete()
             return
           }
-        } else if (mode === 'duration' && typeof totalDurationSec === 'number') {
+        } else if (mode === "duration" && typeof totalDurationSec === "number") {
           if (this.state.totalElapsed >= totalDurationSec) {
             this.complete()
             return

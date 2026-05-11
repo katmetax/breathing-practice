@@ -1,7 +1,7 @@
-import type { BreathSessionRecord } from '../types/breathing'
-import { createId } from '../utils/createId'
+import type { BreathSessionRecord } from "../types/breathing"
+import { createId } from "../utils/createId"
 
-const HISTORY_KEY = 'breathing_sessions_v1'
+const HISTORY_KEY = "breathing_sessions_v1"
 
 /**
  * Lightweight local history store standing in for the `breath_sessions` table.
@@ -49,7 +49,7 @@ class HistoryService {
       .slice(0, limit)
   }
 
-  add(record: Omit<BreathSessionRecord, 'id' | 'completedAt'>) {
+  add(record: Omit<BreathSessionRecord, "id" | "completedAt">) {
     this.ensureLoaded()
     const fullRecord: BreathSessionRecord = {
       id: createId("session_"),

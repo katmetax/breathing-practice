@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue"
 
 defineOptions({ inheritAttrs: false })
 
@@ -23,7 +23,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  'update:modelValue': [value: string | number]
+  "update:modelValue": [value: string | number]
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)

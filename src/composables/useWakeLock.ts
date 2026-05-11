@@ -1,4 +1,4 @@
-import { onUnmounted } from 'vue'
+import { onUnmounted } from "vue"
 
 export function useWakeLock() {
   let wakeLock: WakeLockSentinel | null = null
@@ -6,11 +6,11 @@ export function useWakeLock() {
 
   async function requestWakeLock() {
     wantLock = true
-    if (!('wakeLock' in navigator)) return
-    if (document.visibilityState !== 'visible') return
+    if (!("wakeLock" in navigator)) return
+    if (document.visibilityState !== "visible") return
     try {
-      wakeLock = await navigator.wakeLock.request('screen')
-      wakeLock.addEventListener('release', () => {
+      wakeLock = await navigator.wakeLock.request("screen")
+      wakeLock.addEventListener("release", () => {
         wakeLock = null
       })
     } catch {
@@ -27,15 +27,15 @@ export function useWakeLock() {
   }
 
   async function handleVisibilityChange() {
-    if (document.visibilityState === 'visible' && wantLock) {
+    if (document.visibilityState === "visible" && wantLock) {
       await requestWakeLock()
     }
   }
 
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+  document.addEventListener("visibilitychange", handleVisibilityChange)
 
   onUnmounted(() => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    document.removeEventListener("visibilitychange", handleVisibilityChange)
     releaseWakeLock()
   })
 

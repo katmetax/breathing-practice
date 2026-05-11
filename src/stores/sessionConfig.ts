@@ -1,10 +1,10 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
+import { ref } from "vue"
+import { defineStore } from "pinia"
 
-const SELECTED_PRESET_STORAGE_KEY = 'breathing_selected_preset_v1'
-const DEFAULT_PRESET_ID = 'box_default'
+const SELECTED_PRESET_STORAGE_KEY = "breathing_selected_preset_v1"
+const DEFAULT_PRESET_ID = "box_default"
 
-const readStoredPresetId = (): string | null => {
+function readStoredPresetId(): string | null {
   try {
     const value = window.localStorage.getItem(SELECTED_PRESET_STORAGE_KEY)
     return value || DEFAULT_PRESET_ID
@@ -13,7 +13,7 @@ const readStoredPresetId = (): string | null => {
   }
 }
 
-const persistPresetId = (id: string | null) => {
+function persistPresetId(id: string | null) {
   try {
     if (id) {
       window.localStorage.setItem(SELECTED_PRESET_STORAGE_KEY, id)
@@ -25,7 +25,7 @@ const persistPresetId = (id: string | null) => {
   }
 }
 
-export const useSessionConfigStore = defineStore('sessionConfig', () => {
+export const useSessionConfigStore = defineStore("sessionConfig", () => {
   const selectedPresetId = ref<string | null>(readStoredPresetId())
 
   function setSelectedPresetId(id: string | null) {

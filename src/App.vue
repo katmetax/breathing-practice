@@ -40,15 +40,15 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useThemeStore } from './stores/theme'
-import AutoModeIcon from '~icons/material-symbols/brightness-4-rounded'
-import DarkModeIcon from '~icons/material-symbols/dark-mode-outline-rounded'
-import LightModeIcon from '~icons/material-symbols/light-mode-outline-rounded'
-import HistoryIcon from '~icons/material-symbols/history-rounded'
-import SettingsIcon from '~icons/material-symbols/settings-outline-rounded'
+import { storeToRefs } from "pinia"
+import { computed } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { useThemeStore } from "./stores/theme"
+import AutoModeIcon from "~icons/material-symbols/brightness-4-rounded"
+import DarkModeIcon from "~icons/material-symbols/dark-mode-outline-rounded"
+import LightModeIcon from "~icons/material-symbols/light-mode-outline-rounded"
+import HistoryIcon from "~icons/material-symbols/history-rounded"
+import SettingsIcon from "~icons/material-symbols/settings-outline-rounded"
 
 const router = useRouter()
 const route = useRoute()
@@ -56,24 +56,24 @@ const themeStore = useThemeStore()
 const { preference, resolvedTheme } = storeToRefs(themeStore)
 
 const themeButtonLabel = computed(() => {
-  if (preference.value === 'system') {
+  if (preference.value === "system") {
     return `Theme: System (${resolvedTheme.value}). Click to switch to Light.`
   }
-  if (preference.value === 'light') {
-    return 'Theme: Light. Click to switch to Dark.'
+  if (preference.value === "light") {
+    return "Theme: Light. Click to switch to Dark."
   }
-  return 'Theme: Dark. Click to switch to System.'
+  return "Theme: Dark. Click to switch to System."
 })
 
-const onHistoryClick = () => {
-  router.push(route.path === '/history' ? '/' : '/history')
+function onHistoryClick() {
+  router.push(route.path === "/history" ? "/" : "/history")
 }
 
-const onSettingsClick = () => {
-  router.push(route.path === '/settings' ? '/' : '/settings')
+function onSettingsClick() {
+  router.push(route.path === "/settings" ? "/" : "/settings")
 }
 
-const onThemeClick = () => {
+function onThemeClick() {
   themeStore.cycleThemePreference()
 }
 </script>
@@ -89,8 +89,8 @@ const onThemeClick = () => {
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
-    'SF Pro Text',
-    'Segoe UI',
+    "SF Pro Text",
+    "Segoe UI",
     sans-serif;
 }
 

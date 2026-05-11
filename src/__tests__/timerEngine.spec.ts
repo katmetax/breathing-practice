@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import type { timerEngine as TimerEngineType, TimerConfig } from '../services/timerEngine'
-import { BreathPhase } from '../types/breathing'
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
+import type { timerEngine as TimerEngineType, TimerConfig } from "../services/timerEngine"
+import { BreathPhase } from "../types/breathing"
 
-describe('timerEngine', () => {
+describe("timerEngine", () => {
   let engine: typeof TimerEngineType
   let rafCallback: FrameRequestCallback | null = null
   let mockCancelRAF: ReturnType<typeof vi.fn>
@@ -11,15 +11,15 @@ describe('timerEngine', () => {
     rafCallback = null
     mockCancelRAF = vi.fn()
 
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
       rafCallback = cb
       return 1
     })
-    vi.stubGlobal('cancelAnimationFrame', mockCancelRAF)
-    vi.spyOn(performance, 'now').mockReturnValue(0)
+    vi.stubGlobal("cancelAnimationFrame", mockCancelRAF)
+    vi.spyOn(performance, "now").mockReturnValue(0)
 
     vi.resetModules()
-    const mod = await import('../services/timerEngine')
+    const mod = await import("../services/timerEngine")
     engine = mod.timerEngine
   })
 
@@ -40,10 +40,10 @@ describe('timerEngine', () => {
       { phase: BreathPhase.EXHALE, durationSec: 4 },
     ],
     rounds: 2,
-    mode: 'rounds',
+    mode: "rounds",
   }
 
-  it('getState returns non-running state before init', () => {
+  it("getState returns non-running state before init", () => {
     const state = engine.getState()
     expect(state.running).toBe(false)
     expect(state.currentPhase).toBeNull()
@@ -51,7 +51,7 @@ describe('timerEngine', () => {
     expect(state.currentRound).toBe(0)
   })
 
-  it('init sets currentPhase to the first phase and resets round to 1', () => {
+  it("init sets currentPhase to the first phase and resets round to 1", () => {
     engine.init(twoPhaseConfig, {})
     const state = engine.getState()
     expect(state.currentPhase).toBe(BreathPhase.INHALE)
@@ -60,7 +60,7 @@ describe('timerEngine', () => {
     expect(state.totalElapsed).toBe(0)
   })
 
-  it('start sets running to true and fires onPhaseChange', () => {
+  it("start sets running to true and fires onPhaseChange", () => {
     const onPhaseChange = vi.fn()
     engine.init(twoPhaseConfig, { onPhaseChange })
     engine.start()
@@ -69,13 +69,13 @@ describe('timerEngine', () => {
     expect(onPhaseChange.mock.calls[0]?.[0].currentPhase).toBe(BreathPhase.INHALE)
   })
 
-  it('start is a no-op when not yet configured', () => {
+  it("start is a no-op when not yet configured", () => {
     engine.start()
     expect(engine.getState().running).toBe(false)
     expect(rafCallback).toBeNull()
   })
 
-  it('start is a no-op when already running', () => {
+  it("start is a no-op when already running", () => {
     const onPhaseChange = vi.fn()
     engine.init(twoPhaseConfig, { onPhaseChange })
     engine.start()
@@ -83,7 +83,7 @@ describe('timerEngine', () => {
     expect(onPhaseChange).toHaveBeenCalledOnce()
   })
 
-  it('stop cancels the animation frame and sets running to false', () => {
+  it("stop cancels the animation frame and sets running to false", () => {
     engine.init(twoPhaseConfig, {})
     engine.start()
     engine.stop()
@@ -91,7 +91,7 @@ describe('timerEngine', () => {
     expect(mockCancelRAF).toHaveBeenCalled()
   })
 
-  it('tick advances totalElapsed and currentPhaseElapsed', () => {
+  it("tick advances totalElapsed and currentPhaseElapsed", () => {
     const onTick = vi.fn()
     engine.init(twoPhaseConfig, { onTick })
     engine.start()
@@ -102,7 +102,7 @@ describe('timerEngine', () => {
     expect(lastState.currentPhaseElapsed).toBeCloseTo(2)
   })
 
-  it('transitions to the next phase when the current phase duration elapses', () => {
+  it("transitions to the next phase when the current phase duration elapses", () => {
     const onPhaseChange = vi.fn()
     engine.init(twoPhaseConfig, { onPhaseChange })
     engine.start() // fires onPhaseChange once
@@ -113,7 +113,7 @@ describe('timerEngine', () => {
     expect(engine.getState().currentPhaseElapsed).toBeCloseTo(0.1)
   })
 
-  it('carries overshoot time into the next phase on transition', () => {
+  it("carries overshoot time into the next phase on transition", () => {
     engine.init(twoPhaseConfig, {}) // inhale 4s, exhale 4s
     engine.start()
     tick(0)
@@ -124,7 +124,7 @@ describe('timerEngine', () => {
     expect(engine.getState().currentPhaseElapsed).toBeCloseTo(0.25)
   })
 
-  it('advances the round number when the last phase of a round completes', () => {
+  it("advances the round number when the last phase of a round completes", () => {
     engine.init(twoPhaseConfig, {}) // rounds: 2
     engine.start()
     tick(0)
@@ -135,7 +135,7 @@ describe('timerEngine', () => {
     expect(state.currentPhase).toBe(BreathPhase.INHALE)
   })
 
-  it('calls onComplete and stops when all rounds finish in rounds mode', () => {
+  it("calls onComplete and stops when all rounds finish in rounds mode", () => {
     const onComplete = vi.fn()
     engine.init({ ...twoPhaseConfig, rounds: 1 }, { onComplete })
     engine.start()
@@ -146,7 +146,7 @@ describe('timerEngine', () => {
     expect(engine.getState().running).toBe(false)
   })
 
-  it('calls onComplete and stops after the configured number of rounds in rounds mode', () => {
+  it("calls onComplete and stops after the configured number of rounds in rounds mode", () => {
     const onComplete = vi.fn()
     // 2-round config: inhale 4s + exhale 4s = 8s per round, 2 rounds = 16s total
     engine.init({ ...twoPhaseConfig, rounds: 2 }, { onComplete })
@@ -161,10 +161,10 @@ describe('timerEngine', () => {
     expect(engine.getState().running).toBe(false)
   })
 
-  it('calls onComplete after a full round completes once totalDurationSec is exceeded in duration mode', () => {
+  it("calls onComplete after a full round completes once totalDurationSec is exceeded in duration mode", () => {
     const onComplete = vi.fn()
     // 4s inhale + 4s exhale = 8s per round; set duration to 10s so it stops after round 2 (16s)
-    engine.init({ ...twoPhaseConfig, mode: 'duration', totalDurationSec: 10 }, { onComplete })
+    engine.init({ ...twoPhaseConfig, mode: "duration", totalDurationSec: 10 }, { onComplete })
     engine.start()
     tick(0)
     tick(4100) // inhale done → exhale (round 1)
@@ -177,11 +177,11 @@ describe('timerEngine', () => {
     expect(engine.getState().running).toBe(false)
   })
 
-  it('does not stop mid-round in duration mode even when totalDurationSec is exceeded', () => {
+  it("does not stop mid-round in duration mode even when totalDurationSec is exceeded", () => {
     const onComplete = vi.fn()
     // 4s inhale + 4s exhale = 8s per round; set duration to 5s
     // The timer should NOT stop after inhale (5s > 4s) — it must wait for the full round
-    engine.init({ ...twoPhaseConfig, mode: 'duration', totalDurationSec: 5 }, { onComplete })
+    engine.init({ ...twoPhaseConfig, mode: "duration", totalDurationSec: 5 }, { onComplete })
     engine.start()
     tick(0)
     tick(4100) // inhale done → exhale; totalElapsed 4.1s (< 5s, round not done yet)
@@ -193,15 +193,15 @@ describe('timerEngine', () => {
     expect(engine.getState().running).toBe(false)
   })
 
-  it('calls onComplete immediately when phases array is empty', () => {
+  it("calls onComplete immediately when phases array is empty", () => {
     const onComplete = vi.fn()
-    engine.init({ phases: [], rounds: 1, mode: 'rounds' }, { onComplete })
+    engine.init({ phases: [], rounds: 1, mode: "rounds" }, { onComplete })
     engine.start()
     tick(0)
     expect(onComplete).toHaveBeenCalledOnce()
   })
 
-  it('re-init while running stops the current session and resets state', () => {
+  it("re-init while running stops the current session and resets state", () => {
     const onComplete = vi.fn()
     engine.init(twoPhaseConfig, { onComplete })
     engine.start()

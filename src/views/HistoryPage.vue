@@ -6,7 +6,7 @@
       </div>
     </header>
 
-    <div v-if="sessions.length === 0" class="empty-state">
+    <div v-if="sessionItems.length === 0" class="empty-state">
       <div class="empty-icon-wrap" aria-hidden="true"><BreathIcon /></div>
       <div class="empty-text-group">
         <p class="empty-heading">No sessions yet</p>
@@ -17,7 +17,7 @@
 
     <template v-else>
       <div class="sessions-counter">
-        <span class="sessions-counter-number">{{ totalNumberOfSessions }}</span>
+        <span class="sessions-counter-number">{{ totalSessionCount }}</span>
         <span class="sessions-counter-label sessions-counter-label--short">sessions</span>
         <span class="sessions-counter-label sessions-counter-label--long">sessions completed</span>
       </div>
@@ -29,7 +29,7 @@
         </div>
         <ul class="session-list">
           <li
-            v-for="(session, index) in sessions"
+            v-for="(session, index) in sessionItems"
             :key="session.id"
             class="session-item"
             :class="{ 'session-item--stripe': index % 2 !== 0 }"
@@ -37,7 +37,7 @@
             <div class="session-left">
               <div class="session-icon-wrap" aria-hidden="true"><BreathIcon /></div>
               <div class="session-info">
-                <p class="session-preset-name">{{ sessionLabel(session) }}</p>
+                <p class="session-preset-name">{{ session.presetName ?? "Session" }}</p>
                 <p class="session-date-mobile">{{ formatDate(session.completedAt) }}</p>
               </div>
             </div>
@@ -57,41 +57,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { historyService } from '../services/historyService'
-import BreathIcon from '~icons/material-symbols/air-rounded'
+import { ref, watch } from "vue"
+import { useRoute } from "vue-router"
+import { historyService } from "../services/historyService"
+import BreathIcon from "~icons/material-symbols/air-rounded"
 
 const route = useRoute()
 const sessionItems = ref(historyService.listRecent(50))
 const totalSessionCount = ref(historyService.listAll().length)
 
-const reloadSessions = () => {
+function reloadSessions() {
   sessionItems.value = historyService.listRecent(50)
   totalSessionCount.value = historyService.listAll().length
 }
 
-onMounted(reloadSessions)
 watch(() => route.path, reloadSessions)
-
-const sessions = computed(() => sessionItems.value)
-const totalNumberOfSessions = computed(() => totalSessionCount.value)
-
-const sessionLabel = (session: { presetName?: string }) => session.presetName ?? 'Session'
 
 function formatDate(iso: string): string {
   const date = new Date(iso)
   return date.toLocaleString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
 
 function formatRounds(rounds: number): string {
-  return `${rounds} ${rounds === 1 ? 'round' : 'rounds'}`
+  return `${rounds} ${rounds === 1 ? "round" : "rounds"}`
 }
 
 function formatDuration(seconds: number): string {
@@ -140,7 +134,7 @@ function formatDuration(seconds: number): string {
 }
 
 .sessions-counter-number {
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-primary);
@@ -149,7 +143,7 @@ function formatDuration(seconds: number): string {
 }
 
 .sessions-counter-label {
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-size: 0.875rem;
   color: var(--color-text-muted);
   letter-spacing: 0.15em;

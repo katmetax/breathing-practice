@@ -1,23 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
-import TimerPage from '../views/TimerPage.vue'
-import SettingsPage from '../views/SettingsPage.vue'
-import HistoryPage from '../views/HistoryPage.vue'
+import { createRouter, createWebHistory } from "vue-router"
+import type { RouteRecordRaw } from "vue-router"
+import TimerPage from "../views/TimerPage.vue"
+import SettingsPage from "../views/SettingsPage.vue"
+import HistoryPage from "../views/HistoryPage.vue"
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
-    name: 'timer',
+    path: "/",
+    name: "timer",
     component: TimerPage,
   },
   {
-    path: '/settings',
-    name: 'settings',
+    path: "/settings",
+    name: "settings",
     component: SettingsPage,
   },
   {
-    path: '/history',
-    name: 'history',
+    path: "/history",
+    name: "history",
     component: HistoryPage,
   },
 ]

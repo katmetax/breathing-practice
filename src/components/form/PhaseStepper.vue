@@ -34,7 +34,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number]
+  "update:modelValue": [value: string | number]
   blur: []
   beforeinput: [event: InputEvent]
   paste: [event: ClipboardEvent]
@@ -44,14 +44,14 @@ function decrement() {
   const min = props.min ?? 0
   const current = Number(props.modelValue)
   if (!isFinite(current)) return
-  emit('update:modelValue', Math.max(min, Math.round((current - 1) * 10) / 10))
+  emit("update:modelValue", Math.max(min, Math.round((current - 1) * 10) / 10))
 }
 
 function increment() {
   const max = props.max ?? 60
   const current = Number(props.modelValue)
   if (!isFinite(current)) return
-  emit('update:modelValue', Math.min(max, Math.round((current + 1) * 10) / 10))
+  emit("update:modelValue", Math.min(max, Math.round((current + 1) * 10) / 10))
 }
 </script>
 
@@ -64,7 +64,7 @@ function increment() {
 }
 
 .stepper-label {
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-size: 0.75rem;
   color: var(--color-text-muted);
   letter-spacing: 0.1em;
@@ -92,7 +92,7 @@ function increment() {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   line-height: 1;
   transition:
     background 120ms ease,
@@ -134,8 +134,8 @@ function increment() {
 }
 
 .stepper-value-wrapper::after {
-  content: 's';
-  font-family: 'DM Mono', monospace;
+  content: "s";
+  font-family: "DM Mono", monospace;
   font-size: 1rem;
   font-weight: 500;
   color: var(--color-primary);
@@ -148,7 +148,7 @@ function increment() {
   background: transparent;
   border: none;
   outline: none;
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-size: 1rem;
   font-weight: 500;
   color: var(--color-primary);
