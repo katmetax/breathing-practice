@@ -12,8 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-
 defineOptions({ inheritAttrs: false })
 
 defineProps<{
@@ -25,10 +23,6 @@ defineProps<{
 defineEmits<{
   "update:modelValue": [value: string | number]
 }>()
-
-const inputRef = ref<HTMLInputElement | null>(null)
-
-defineExpose({ focus: () => inputRef.value?.focus() })
 </script>
 
 <style scoped>

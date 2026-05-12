@@ -210,14 +210,6 @@ const saveSuccess = ref("")
 const pendingDeleteId = ref<string | null>(null)
 
 const showPresetSettings = ref<boolean>(false)
-const presetNameFieldRef = ref<InstanceType<typeof FormField> | null>(null)
-
-watch(showPresetSettings, async (val) => {
-  if (val) {
-    await nextTick()
-    presetNameFieldRef.value?.focus()
-  }
-})
 
 const presets = ref<BreathPreset[]>(presetManager.list())
 const sessionConfigStore = useSessionConfigStore()
