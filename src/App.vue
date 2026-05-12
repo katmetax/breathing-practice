@@ -1,9 +1,29 @@
 <template>
   <div class="app-root">
     <header class="app-header">
-      <h1 class="app-title">
-        <a href="/" class="app-title-link" @click.prevent="router.push('/')">Breathing Practice</a>
-      </h1>
+      <a href="/" class="app-logo-link" @click.prevent="router.push('/')" aria-label="Home">
+        <svg class="app-logo" viewBox="-120 -120 240 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="logo-diagonal-clip">
+              <polygon points="-160,-120 -120,90 90,190" />
+            </clipPath>
+            <clipPath id="logo-diagonal-inner-clip">
+              <polygon points="-120,0 120,0 120,120 -120,120" />
+            </clipPath>
+          </defs>
+          <path
+            class="logo-blob"
+            clip-path="url(#logo-diagonal-clip)"
+            d="M 68.49524956368963,0 C 66.43247209477671,33.20740357502506 61.3111903929552,42.00348902386601 34.21905184843267,59.269136388319076 C 7.12691330391014,76.53478375277214 -10.450868727355978,83.87987355489201 -39.873304614400496,69.06258945781225 C -69.29574050144501,54.24530536073249 -83.35640146463219,34.72925122293119 -83.4706916997454,1.0222211541270874e-14 C -83.58498193485862,-34.729251222931175 -71.81567891081079,-51.46429595596719 -40.33046555485337,-69.85441543391248 C -8.845252198895942,-88.24453491185777 15.263732944448549,-91.02408177025929 42.4701617240843,-73.56047791178116 C 69.67659050372005,-56.09687405330304 70.55802703260254,-33.20740357502506 68.49524956368963,0 Z"
+          />
+          <path
+            class="logo-blob logo-blob--inner"
+            clip-path="url(#logo-diagonal-inner-clip)"
+            transform="scale(0.52) rotate(25)"
+            d="M 68.49524956368963,0 C 66.43247209477671,33.20740357502506 61.3111903929552,42.00348902386601 34.21905184843267,59.269136388319076 C 7.12691330391014,76.53478375277214 -10.450868727355978,83.87987355489201 -39.873304614400496,69.06258945781225 C -69.29574050144501,54.24530536073249 -83.35640146463219,34.72925122293119 -83.4706916997454,1.0222211541270874e-14 C -83.58498193485862,-34.729251222931175 -71.81567891081079,-51.46429595596719 -40.33046555485337,-69.85441543391248 C -8.845252198895942,-88.24453491185777 15.263732944448549,-91.02408177025929 42.4701617240843,-73.56047791178116 C 69.67659050372005,-56.09687405330304 70.55802703260254,-33.20740357502506 68.49524956368963,0 Z"
+          />
+        </svg>
+      </a>
       <nav class="app-nav">
         <a
           class="nav-link"
@@ -108,17 +128,26 @@ function onThemeClick() {
   backdrop-filter: blur(12px);
 }
 
-.app-title {
-  font-size: 1.2rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-strong);
-  max-width: 220px;
+.app-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
-.app-title-link {
-  color: inherit;
-  text-decoration: none;
+.app-logo {
+  width: 62px;
+  height: 62px;
+}
+
+.logo-blob {
+  fill: none;
+  stroke: var(--gradient-breath-start);
+  stroke-width: 8;
+}
+
+.logo-blob--inner {
+  opacity: 0.5;
+  stroke: var(--gradient-breath-end);
 }
 
 .app-nav {

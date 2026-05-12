@@ -23,8 +23,8 @@ export default defineConfig({
         short_name: "Breathe",
         theme_color: "#f7fafc",
         icons: [
-          { src: "icons/pwa-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icons/pwa-512.png", sizes: "512x512", type: "image/png" },
+          { src: "icons/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "icons/pwa-512x512.png", sizes: "512x512", type: "image/png" },
         ],
       },
       workbox: {
