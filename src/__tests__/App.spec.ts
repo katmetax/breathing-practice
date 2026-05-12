@@ -43,14 +43,9 @@ describe("App", () => {
     return { wrapper, router, pinia }
   }
 
-  it('renders "Breathing Practice" title', async () => {
-    const { wrapper } = await mountApp()
-    expect(wrapper.find(".app-title-link").text()).toContain("Breathing Practice")
-  })
-
   it("title click navigates to /", async () => {
     const { wrapper, router } = await mountApp("/settings")
-    await wrapper.find(".app-title-link").trigger("click")
+    await wrapper.find(".app-logo-link").trigger("click")
     await flushPromises()
     expect(router.currentRoute.value.path).toBe("/")
   })
