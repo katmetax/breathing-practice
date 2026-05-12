@@ -7,6 +7,11 @@
             {{ isCountingDown ? `Starting in ${countdownRemaining}…` : phaseLabel }}
           </p>
 
+          <div class="session-preset" v-if="selectedPreset && !isRunning && !isCountingDown">
+            <span class="session-preset-title muted">TODAY'S PRACTICE</span>
+            <span class="session-selected-preset">{{ selectedPreset.name }}</span>
+          </div>
+
           <div
             class="breath-blob-wrapper"
             :class="{ 'session--active': isRunning || isCountingDown }"
@@ -57,13 +62,10 @@
               <span class="session-complete-dot"></span>
               <span class="session-complete-stat">{{ lastDurationDisplay }}</span>
             </div>
-            <span v-else class="muted">
-              When you start, this circle will guide your breath phases.
-            </span>
           </div>
 
           <span
-            v-if="selectedPreset"
+            v-if="selectedPreset && (isRunning || isCountingDown)"
             :class="{
               'preset-name': true,
               'session--active': isRunning || isCountingDown,
@@ -332,7 +334,6 @@ function beginSession(
 
   timerEngine.start()
   isRunning.value = true
-  // playTone(StartEndPhase.START)
 }
 
 function handleStart() {
@@ -424,6 +425,31 @@ onBeforeUnmount(() => {
 
 .form--session {
   margin-bottom: 1.5rem;
+}
+
+.session-preset {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.session-preset-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.session-selected-preset {
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  color: #3dcab1;
+  margin-top: 0.5rem;
+}
+
+@media screen and (max-width: 490px) {
+  .session-selected-preset {
+    margin-top: 0.2rem;
+  }
 }
 
 .session-settings {
@@ -678,7 +704,7 @@ onBeforeUnmount(() => {
 
   .session-visual.is-presession {
     margin-top: -2.5rem;
-    gap: 0.5rem;
+    gap: 0;
   }
 
   .breath-blob-wrapper {
