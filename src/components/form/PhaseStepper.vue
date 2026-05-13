@@ -11,7 +11,7 @@
           inputmode="decimal"
           :min="min"
           :max="max"
-          step="0.5"
+          step="0.1"
           @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
           @blur="$emit('blur')"
           @beforeinput="$emit('beforeinput', $event as InputEvent)"
