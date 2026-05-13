@@ -70,12 +70,12 @@ Feedback is always welcome! If you have a feature request, notice a bug or think
 ## Future/nice to haves:
 
 - Re-think how a preset is set/selected:
-  - Have categorised preset breathing patterns (e.g. grounding, energising, calming) so that the user can start a session without any prior knowledge of breathing practices
-  - Identify the different breathing patterns automatically and name them (for example box breathing, top triangle breathing, bottom triangle breathing etc.)
+  - Have categorised preset breathing patterns (e.g. grounding, energising, calming) so that the user can start a session without having to create presets and without any prior knowledge of breathing practices
+  - Identify the different breathing patterns when a user creates a preset and name them automatically (for example 4-4-4-4 is box breathing, 3-3-3-0 is top triangle breathing, 3-0-3-0 is bottom triangle breathing etc.)
 
 - Improve the breathing graphic:
-  - Add aborder that matches SVG breathing shape and that shows where the SVG will scale to (up/down) on inhale/exhale and the SVG shape fills that space as it scales. This is to guide a deaf user how long they need to keep inhaling/exhaling for.
-  - Add option to change breathing graphic to bell curve type graph
+  - Add a border that matches the SVG breathing shape and that shows where the SVG will scale to (up/down) on inhale/exhale and the SVG shape fills that space as it scales. This is to guide a deaf user how long they need to keep inhaling/exhaling for.
+  - Add option to change breathing graphic to bell curve graph
 
 - Find a way to use this lovely relaxing soundscape :) https://freesound.org/people/DudeAwesome/sounds/790545/
 
