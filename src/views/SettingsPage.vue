@@ -188,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { storeToRefs } from "pinia"
 import { presetManager } from "../services/presetManager"
 import { BreathPhase, type BreathPreset } from "../types/breathing"
